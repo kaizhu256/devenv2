@@ -19,7 +19,7 @@
     denyCurrentBranch = warn
 [remote "origin"]
     fetch = +refs/heads/*:refs/remotes/origin/*
-    url = https://github.com/kaizhu256/development-environment
+    url = https://github.com/kaizhu256/devenv
 # [remote "upstream"]
     # fetch = +refs/heads/*:refs/remotes/upstream/*
-    # url = https://github.com/kaizhu256/development-environment
+    # url = https://github.com/kaizhu256/devenv

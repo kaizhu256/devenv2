@@ -25,7 +25,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-// For more information, please refer to <http://unlicense.org/>
+// For more information, please refer to <https://unlicense.org/>
 
 
 // jslint(source, option_dict, global_list) is a function that takes 3
@@ -94,38 +94,65 @@
 /*jslint beta, node*/
 
 /*property
-    causes,
-    global_list,
-    max, min, mode_vim_plugin,
-    process_argv,
-    stringify,
-    test_cause, trace,
-    JSLINT_BETA, a, all, argv, arity, artifact, assign, async,
-    b, beta, bind, bitwise, block, body, browser, c, calls, catch, catch_list,
-    catch_stack, cjs_module, cjs_require, cli, closer, closure, code, column,
-    concat, console_error, constant, context, convert, couch, create, cwd, d,
-    dead, default, devel, directive, directive_list, directive_quiet,
-    directives, disrupt, dot, edition, ellipsis, else, endsWith, env, error,
-    eval, every, exec, execArgv, exit, export_dict, exports, expression, extra,
-    file, fileURLToPath, filter, finally, flag, for, forEach, formatted_message,
-    free, freeze, from, froms, fud, function_list, function_stack, functions,
-    getset, global, global_dict, id, identifier, import, import_list, inc,
-    indent2, index, indexOf, init, initial, isArray, isNaN, is_equal, is_weird,
-    join, jslint, json, keys, label, statement_prv, lbp, led, length, level,
-    line, line_list, line_offset, line_source, lines, live, long, loop, m, main,
-    map, margin, match, message, meta, mode_cli, mode_json, mode_module,
-    mode_noop, mode_property, mode_shebang, mode_stop, module, name, names,
-    node, now, nr, nud, ok, open, opening, option, option_dict, order, padStart,
-    parameters, parent, pop, process_exit, promises, property, property_dict,
-    push, quote, readFile, readdir, reduce, repeat, replace, resolve, role,
-    search, shebang, signature, single, slice, some, sort, source, split, stack,
-    stack_trace, startsWith, statement, stop, stop_at, switch, syntax_dict,
-    tenure, test, test_internal_error, this, thru, token, token_global,
-    token_list, token_nxt, token_tree, tokens, tree, trim, trimRight, try, type,
-    unordered, url, used, value, variable, versions, warn, warn_at, warning,
-    warning_list, warnings, white, wrapped, readonly
+    JSLINT_BETA, NODE_V8_COVERAGE, a, all, argv, arity, artifact,
+    assertErrorThrownAsync, assertJsonEqual, assertOrThrow, assign, async, b,
+    beta, bitwise, block, body, browser, c, calls, catch, catch_list,
+    catch_stack, causes, char, children, cjs_module, cjs_require, clear, closer,
+    closure, code, column, concat, consoleError, console_error, console_log,
+    constant, context, convert, count, coverageDir, create, cwd, d, dead,
+    debugInline, default, delta, devel, directive, directive_list,
+    directive_quiet, directives, dirname, disrupt, dot, edition, elem_list,
+    ellipsis, else, end, endOffset, endsWith, entries, env, error, eval, every,
+    example_list, exec, execArgv, exit, export_dict, exports, expression, extra,
+    file, fileList, fileURLToPath, filter, finally, flag, floor, for, forEach,
+    formatted_message, free, freeze, from, froms, fsRmRecursive,
+    fsWriteFileWithParents, fud, functionName, function_list, function_stack,
+    functions, get, getset, github_repo, global, global_dict, global_list,
+    holeList, htmlEscape, id, identifier, import, import_list, inc, indent2,
+    index, indexOf, init, initial, isArray, isBlockCoverage, isHole, isNaN,
+    is_equal, is_weird, join, jslint, jslint_apidoc, jslint_assert,
+    jslint_charset_ascii, jslint_cli, jslint_edition, jslint_phase1_split,
+    jslint_phase2_lex, jslint_phase3_parse, jslint_phase4_walk,
+    jslint_phase5_whitage, jslint_report, json, jstestDescribe, jstestIt,
+    jstestOnExit, keys, label, lbp, led, length, level, line, lineList,
+    line_list, line_offset, line_source, lines, linesCovered, linesTotal, live,
+    log, long, loop, m, main, map, margin, match, max, message, meta, min,
+    mkdir, modeCoverageIgnoreFile, modeIndex, mode_cli, mode_json, mode_module,
+    mode_noop, mode_property, mode_shebang, mode_stop, module, moduleFsInit,
+    moduleName, module_list, name, names, node, noop, now,
+    npm_config_mode_coverage, nr, nud, ok, on, open, opening, option,
+    option_dict, order, package_name, padEnd, padStart, parameters, parent,
+    parentIi, parse, pathname, platform, pop, processArgv, process_argv,
+    process_env, process_exit, process_version, promises, property,
+    property_dict, push, quote, ranges, readFile, readdir, readonly, recursive,
+    reduce, repeat, replace, resolve, result, reverse, rm, rmdir, role, round,
+    scriptId, search, set, shebang, shift, signature, single, slice, some, sort,
+    source, spawn, splice, split, stack, stack_trace, start, startOffset,
+    startsWith, statement, statement_prv, stdio, stop, stop_at, stringify,
+    switch, syntax_dict, tenure, test, test_cause, test_internal_error, this,
+    thru, toString, token, token_global, token_list, token_nxt, token_tree,
+    tokens, trace, tree, trim, trimEnd, trimRight, try, type, unlink, unordered,
+    unshift, url, used, v8CoverageListMerge, v8CoverageReportCreate, value,
+    variable, version, versions, warn, warn_at, warning, warning_list, warnings,
+    white, wrapped, writeFile
 */
 
+// init debugInline
+let debugInline = (function () {
+    let consoleError = function () {
+        return;
+    };
+    return function (...argv) {
+
+// This function will both print <argv> to stderr and return <argv>[0].
+
+        consoleError("\n\ndebugInline");
+        consoleError(...argv);
+        consoleError("\n");
+        consoleError = console.error;
+        return argv[0];
+    };
+}());
 let jslint_charset_ascii = (
     "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007"
     + "\b\t\n\u000b\f\r\u000e\u000f"
@@ -135,25 +162,63 @@ let jslint_charset_ascii = (
     + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
     + "`abcdefghijklmnopqrstuvwxyz{|}~\u007f"
 );
-let jslint_edition = "v2021.9.1-beta";
-let jslint_export;              // The jslint object to be exported.
-let jslint_fudge = 1;           // Fudge starting line and starting column to 1.
+let jslint_edition = "v2021.10.20";
+let jslint_export;                      // The jslint object to be exported.
+let jslint_fudge = 1;                   // Fudge starting line and starting
+                                        // ... column to 1.
 let jslint_import_meta_url = "";        // import.meta.url used by cli.
+let jstestCountFailed = 0;
+let jstestCountTotal = 0;
+let jstestItCount = 0;
+let jstestItList = [];
+let jstestTimeStart;
+let moduleChildProcess;
+let moduleFs;
+let moduleFsInitResolveList;
+let modulePath;
+let moduleUrl;
 
-function assert_or_throw(condition, message) {
+async function assertErrorThrownAsync(asyncFunc, regexp) {
+
+// This function will assert <asyncFunc> throws an error.
+
+    let err;
+    try {
+        await asyncFunc();
+    } catch (errCaught) {
+        err = errCaught;
+    }
+    assertOrThrow(err, "no error thrown");
+    assertOrThrow(
+        regexp === undefined || new RegExp(regexp).test(err.message),
+        err
+    );
+}
+
+function assertJsonEqual(aa, bb) {
+
+// This function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>).
+
+    aa = JSON.stringify(objectDeepCopyWithKeysSorted(aa));
+    bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
+    if (aa !== bb) {
+        throw new Error(
+            JSON.stringify(aa) + " !== " + JSON.stringify(bb)
+        );
+    }
+}
+
+function assertOrThrow(condition, message) {
 
 // This function will throw <message> if <condition> is falsy.
 
-    if (condition) {
-        return condition;
+    if (!condition) {
+        throw (
+            (!message || typeof message === "string")
+            ? new Error(String(message).slice(0, 2048))
+            : message
+        );
     }
-    throw new Error(
-        `This was caused by a bug in JSLint.
-Please open an issue with this stack-trace (and possible example-code) at
-https://github.com/jslint-org/jslint/issues.
-edition = "${jslint_edition}";
-${String(message).slice(0, 2000)}`
-    );
 }
 
 function empty() {
@@ -165,11 +230,67 @@ function empty() {
     return Object.create(null);
 }
 
-function identity(val) {
+async function fsRmRecursive(path, option_dict) {
 
-// This function will return <val>.
+// This function will 'rm -r' <path>.
 
-    return val;
+    await moduleFsInit();
+    console.error("rm -r path " + path);
+    if (((
+        option_dict && option_dict.process_version
+    ) || process.version) < "v14") {
+
+// Legacy rmdir for nodejs v12
+
+        await Promise.all([
+            moduleFs.promises.unlink(path).catch(noop),
+            moduleFs.promises.rmdir(path, {
+                recursive: true
+            }).catch(noop)
+        ]);
+        return;
+    }
+    await moduleFs.promises.rm(path, {
+        recursive: true
+    }).catch(noop);
+}
+
+async function fsWriteFileWithParents(pathname, data) {
+
+// This function will write <data> to <pathname> and lazy-mkdirp if necessary.
+
+    await moduleFsInit();
+
+// Try writing to pathname.
+
+    try {
+        await moduleFs.promises.writeFile(pathname, data);
+    } catch (ignore) {
+
+// Lazy mkdirp.
+
+        await moduleFs.promises.mkdir(modulePath.dirname(pathname), {
+            recursive: true
+        });
+
+// Retry writing to pathname.
+
+        await moduleFs.promises.writeFile(pathname, data);
+    }
+    console.error("wrote file " + pathname);
+}
+
+function htmlEscape(str) {
+
+// This function will make <str> html-safe by escaping & < >.
+
+    return String(str).replace((
+        /&/g
+    ), "&amp;").replace((
+        /</g
+    ), "&lt;").replace((
+        />/g
+    ), "&gt;");
 }
 
 function jslint(
@@ -260,7 +381,7 @@ function jslint(
 //     return true;
 // }
 
-        assert_or_throw(!(aa === bb), `Expected !(aa === bb).`);
+        jslint_assert(!(aa === bb), `Expected !(aa === bb).`);
         if (Array.isArray(aa)) {
             return (
                 Array.isArray(bb)
@@ -281,7 +402,7 @@ function jslint(
 //     return false;
 // }
 
-        assert_or_throw(!Array.isArray(bb), `Expected !Array.isArray(bb).`);
+        jslint_assert(!Array.isArray(bb), `Expected !Array.isArray(bb).`);
         if (aa.id === "(number)" && bb.id === "(number)") {
             return aa.value === bb.value;
         }
@@ -356,7 +477,7 @@ function jslint(
 //     return false;
 // }
 
-            assert_or_throw(
+            jslint_assert(
                 !(aa.arity === "function" || aa.arity === "regexp"),
                 `Expected !(aa.arity === "function" || aa.arity === "regexp").`
             );
@@ -417,9 +538,9 @@ function jslint(
         if (option_dict.test_cause) {
             cause_dict[JSON.stringify([
                 String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
+                    /^    at (?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
                 ), "").match(
-                    /\n\u0020{4}at\u0020((?:Object\.\w+?_)?\w+?)\u0020/
+                    /\n    at ((?:Object\.\w+?_)?\w+?) /
                 )[1].replace((
                     /^Object\./
                 ), ""),
@@ -781,7 +902,7 @@ function jslint(
 
 // Validate mm.
 
-        assert_or_throw(mm, code);
+        jslint_assert(mm, code);
         warning.message = mm;
 
 // PR-242 - Include stack_trace for jslint to debug itself for errors.
@@ -849,8 +970,8 @@ function jslint(
 // PHASE 1. Split <source> by newlines into <line_list>.
 
         jslint_phase1_split(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
+        jslint_assert(catch_stack.length === 1, `catch_stack.length === 1.`);
+        jslint_assert(
             function_stack.length === 0,
             `function_stack.length === 0.`
         );
@@ -858,8 +979,8 @@ function jslint(
 // PHASE 2. Lex <line_list> into <token_list>.
 
         jslint_phase2_lex(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
+        jslint_assert(catch_stack.length === 1, `catch_stack.length === 1.`);
+        jslint_assert(
             function_stack.length === 0,
             `function_stack.length === 0.`
         );
@@ -867,8 +988,8 @@ function jslint(
 // PHASE 3. Parse <token_list> into <token_tree> using the Pratt-parser.
 
         jslint_phase3_parse(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
+        jslint_assert(catch_stack.length === 1, `catch_stack.length === 1.`);
+        jslint_assert(
             function_stack.length === 0,
             `function_stack.length === 0.`
         );
@@ -880,8 +1001,8 @@ function jslint(
         if (!state.mode_json) {
             jslint_phase4_walk(state);
         }
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
+        jslint_assert(catch_stack.length === 1, `catch_stack.length === 1.`);
+        jslint_assert(
             function_stack.length === 0,
             `function_stack.length === 0.`
         );
@@ -891,8 +1012,8 @@ function jslint(
         if (!state.mode_json && warning_list.length === 0) {
             jslint_phase5_whitage(state);
         }
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
+        jslint_assert(catch_stack.length === 1, `catch_stack.length === 1.`);
+        jslint_assert(
             function_stack.length === 0,
             `function_stack.length === 0.`
         );
@@ -911,7 +1032,7 @@ function jslint(
 //         }
 
         if (option_dict.test_internal_error) {
-            assert_or_throw(undefined, "test_internal_error");
+            jslint_assert(undefined, "test_internal_error");
         }
     } catch (err) {
         mode_stop = true;
@@ -985,35 +1106,380 @@ function jslint(
     };
 }
 
+// PR-362 - Add API Doc.
+
+async function jslint_apidoc({
+    example_list,
+    github_repo,
+    module_list,
+    package_name,
+    pathname,
+    version
+}) {
+
+// This function will create API Doc from <module_list>.
+
+    let elem_ii = 0;
+    let html;
+
+    function elem_create(moduleObj, key, moduleName) {
+
+// This function will create a sub API Doc from elem <moduleObj>[<key>].
+
+        let example = "N/A";
+        let id = encodeURIComponent("apidoc.elem." + moduleName + "." + key);
+        let name;
+        let signature;
+        let source;
+        name = htmlEscape((typeof moduleObj[key]) + " " + key);
+        if (typeof moduleObj[key] !== "function") {
+            return {
+                name,
+                signature: (`
+<a class="apidocElementLiA" href="#${id}">
+${name}
+</a>
+                `),
+                source: (`
+<li>
+    <h2>
+    <a href="#${id}" id="${id}">
+    ${name}
+    </a>
+    </h2>
+</li>
+                `)
+            };
+        }
+        // init source
+        source = htmlEscape(trim_start(moduleObj[key].toString()));
+        // init signature
+        source = source.replace((
+            /(\([\S\s]*?\)) \{/
+        ), function (match0, match1) {
+            signature = htmlEscape(
+                match1.replace((
+                    / *?\/\*[\S\s]*?\*\/ */g
+                ), "").replace((
+                    / *?\/\/.*/g
+                ), "").replace((
+                    /\n{2,}/g
+                ), "\n")
+            );
+            return match0;
+        });
+        // init comment
+        source = source.replace((
+            /\n(?:\/\/.*?\n)+\n/
+        ), "<span class=\"apidocCodeCommentSpan\">$&</span>");
+        // init example
+        example_list.some(function (example2) {
+            example2.replace(
+                new RegExp((
+                    "((?:\\n.*?){8}(function )?)\\b"
+                    + key
+                    + "(\\((?:.*?\\n){8})"
+                ), "g"),
+                function (ignore, header, isDeclaration, footer) {
+                    if (!isDeclaration) {
+                        example = "..." + trim_start(
+                            htmlEscape(header)
+                            + "<span class=\"apidocCodeKeywordSpan\">"
+                            + htmlEscape(key)
+                            + "</span>"
+                            + htmlEscape(footer)
+                        ).trimEnd() + "\n...";
+                    }
+                    return "";
+                }
+            );
+            return example !== "N/A";
+        });
+        if (source.length > 2048) {
+            source = source.slice(0, 2048) + "...\n}\n";
+        }
+        return {
+            name,
+            signature: (`
+<a class="apidocElementLiA" href="#${id}">
+${name}<span class="apidocSignatureSpan">${signature}</span>
+</a>
+            `),
+            source: (`
+<li>
+    <h2>
+    <a href="#${id}" id="${id}">
+    ${name}<span class="apidocSignatureSpan">${signature}</span>
+    </a>
+    </h2>
+</li>
+<li>Description and source-code:<pre class="apidocCodePre">${source}</pre></li>
+<li>Example usage:<pre class="apidocCodePre">${example}</pre></li>
+            `)
+        };
+    }
+
+    function trim_start(str) {
+
+// This function will normalize whitespace before <str>.
+
+        let whitespace = "";
+        str.trim().replace((
+            /^ */gm
+        ), function (match0) {
+            if (whitespace === "" || match0.length < whitespace.length) {
+                whitespace = match0;
+            }
+            return "";
+        });
+        str = str.replace(new RegExp("^" + whitespace, "gm"), "");
+        return str;
+    }
+    await moduleFsInit();
+
+// Html-escape params.
+
+    github_repo = htmlEscape(github_repo);
+    package_name = htmlEscape(package_name);
+    version = htmlEscape(version);
+
+// Init example_list.
+
+    example_list = await Promise.all(example_list.map(async function (file) {
+
+// This function will read example from given file.
+
+        let result = await moduleFs.promises.readFile(file, "utf8");
+        result = (
+            "\n\n\n\n\n\n\n\n"
+            // bug-workaround - truncate example to manageable size
+            + result.slice(0, 524288)
+            + "\n\n\n\n\n\n\n\n"
+        );
+        result = result.replace((
+            /\r\n*/g
+        ), "\n");
+        return result;
+    }));
+    // init module_list
+    module_list = await Promise.all(module_list.map(async function ({
+        pathname
+    }) {
+        let moduleName = htmlEscape(JSON.stringify(pathname));
+        let moduleObj = await import(pathname);
+        if (moduleObj.default) {
+            moduleObj = moduleObj.default;
+        }
+        return {
+            elem_list: Object.keys(moduleObj).map(function (key) {
+                return elem_create(moduleObj, key, moduleName);
+            }).sort(function (aa, bb) {
+                return (
+                    aa.name < bb.name
+                    ? -1
+                    : 1
+                );
+            }).map(function (elem) {
+                elem_ii += 1;
+                elem.signature = elem.signature.replace(
+                    ">",
+                    ">" + elem_ii + ". "
+                );
+                elem.source = elem.source.replace(
+                    "\">",
+                    "\">" + elem_ii + ". "
+                );
+                return elem;
+            }),
+            id: encodeURIComponent("apidoc.module." + moduleName),
+            moduleName
+        };
+    }));
+    html = (`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="${package_name} API Doc">
+<title>${package_name} apidoc</title>
+<style>
+/* jslint utility2:true */
+/*csslint*/
+body {
+    margin: 0;
+    padding: 20px;
+}
+.apidocCodeCommentSpan,
+.apidocCodeKeywordSpan {
+    background: royalblue;
+    color: white;
+}
+.apidocCodeCommentSpan {
+    display: block;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    font-size: 14px;
+    overflow-wrap: break-word;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocDiv {
+    color: #555;
+    font-family: sans-serif;
+}
+.apidocDiv a[href] {
+    color: royalblue;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocDiv li a {
+    display: inline-block;
+    padding: 8px 0;
+}
+.apidocDiv ul {
+    list-style: none;
+    padding-left: 20px;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleA {
+    font-size: 24px;
+    font-weight: bold;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #666;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+<div class="apidocDiv">
+<h1>API Doc for <a href="${github_repo}">${package_name} (${version})</a></h1>
+<div class="apidocSectionDiv">
+    <a href="#apidocTableOfContents1" id="apidocTableOfContents1">
+        <h1>Table of Contents</h1>
+    </a>
+    <ul>
+    `) + module_list.map(function ({
+        elem_list,
+        id,
+        moduleName
+    }) {
+        return (
+            (`
+        <li>
+            <a class="apidocModuleA" href="#${id}">Module ${moduleName}</a>
+            <ul>
+            `)
+            + elem_list.map(function ({
+                signature
+            }) {
+                return "<li>\n" + signature + "\n</li>\n";
+            }).join("")
+            + (`
+            </ul>
+        </li>
+            `)
+        );
+    }).join("") + (`
+    </ul>
+</div>
+    `) + module_list.map(function ({
+        elem_list,
+        id,
+        moduleName
+    }) {
+        return (
+            (`
+<div class="apidocSectionDiv">
+    <h1><a href="#${id}" id="${id}">Module ${moduleName}</a></h1>
+    <ul>
+            `)
+            + elem_list.map(function ({
+                source
+            }) {
+                return source;
+            }).join("")
+            + (`
+    </ul>
+</div>
+            `)
+        );
+    }).join("") + (`
+<div class="apidocFooterDiv">
+    [
+    This document was created with
+    <a href="https://github.com/jslint-org/jslint">JSLint</a>
+    ]
+</div>
+</div>
+</body>
+</html>
+    `);
+    html = html.trim().replace((
+        / +?$/gm
+    ), "") + "\n";
+    await fsWriteFileWithParents(pathname, html);
+}
+
+function jslint_assert(condition, message) {
+
+// This function will throw <message> if <condition> is falsy.
+
+    if (condition) {
+        return condition;
+    }
+    throw new Error(
+        `This was caused by a bug in JSLint.
+Please open an issue with this stack-trace (and possible example-code) at
+https://github.com/jslint-org/jslint/issues.
+edition = "${jslint_edition}";
+${String(message).slice(0, 2000)}`
+    );
+}
+
 async function jslint_cli({
     cjs_module,
     cjs_require,
     console_error,
+    console_log,
     file,
     mode_cli,
     mode_noop,
-    mode_vim_plugin,
     option,
     process_argv,
+    process_env,
     process_exit,
     source
 }) {
 
 // This function will run jslint from nodejs-cli.
 
+    let command;
     let data;
     let exit_code = 0;
-    let module_fs;
-    let module_path;
-    let module_url;
+    let mode_plugin_vim;
+    let mode_report;
+    let result;
 
     function jslint_from_file({
         code,
         file,
         line_offset = 0,
-        option = empty(),
-        warnings = []
+        option = empty()
     }) {
+        let result_from_file;
         option = Object.assign(empty(), option, {
             file
         });
@@ -1025,7 +1491,7 @@ async function jslint_cli({
 // Recursively jslint embedded "<script>\n...\n</script>".
 
             code.replace((
-                /^<script>\n([\S\s]*?\n)<\/script>$/gm
+                /^<script\b[^>]*?>\n([\S\s]*?\n)<\/script>$/gm
             ), function (ignore, match1, ii) {
                 jslint_from_file({
                     code: match1,
@@ -1038,28 +1504,12 @@ async function jslint_cli({
                 return "";
             });
             return;
-        case ".md":
-
-// Recursively jslint embedded "```javascript\n...\n```".
-
-            code.replace((
-                /^```(?:javascript|js)\n([\S\s]*?\n)```$/gm
-            ), function (ignore, match1, ii) {
-                jslint_from_file({
-                    code: match1,
-                    file: file + ".<```javascript>.js",
-                    line_offset: string_line_count(code.slice(0, ii)) + 1,
-                    option
-                });
-                return "";
-            });
-            return;
         case ".sh":
 
 // Recursively jslint embedded "node -e '\n...\n'".
 
             code.replace((
-                /\bnode\u0020.*?-e\u0020'\n([\S\s]*?\n)'/gm
+                /\bnode\b.*? -e '\n([\S\s]*?\n)'/gm
             ), function (ignore, match1, ii) {
                 jslint_from_file({
                     code: match1,
@@ -1067,10 +1517,10 @@ async function jslint_cli({
                     line_offset: string_line_count(code.slice(0, ii)) + 1,
                     option: Object.assign(empty(), {
                         beta: Boolean(
-                            process.env.JSLINT_BETA
+                            process_env.JSLINT_BETA
                             && !(
                                 /0|false|null|undefined/
-                            ).test(process.env.JSLINT_BETA)
+                            ).test(process_env.JSLINT_BETA)
                         ),
                         node: true
                     }, option)
@@ -1079,22 +1529,19 @@ async function jslint_cli({
             });
             return;
         default:
-            warnings = jslint(
-                "\n".repeat(line_offset) + code,
-                option
-            ).warnings;
+            result_from_file = jslint("\n".repeat(line_offset) + code, option);
         }
 
 // Print only first 10 warnings to stderr.
 
-        if (warnings.length > 0) {
+        if (result_from_file.warnings.length > 0) {
             exit_code = 1;
             console_error(
-                mode_vim_plugin
+                mode_plugin_vim
 
 // PR-349 - Print warnings in format readable by vim.
 
-                ? warnings.slice(0, 10).map(function ({
+                ? result_from_file.warnings.slice(0, 10).map(function ({
                     column,
                     line,
                     message
@@ -1111,34 +1558,35 @@ async function jslint_cli({
 // Print warnings in format readable by human.
 
                 : "\u001b[1mjslint " + file + "\u001b[22m\n"
-                + warnings.slice(0, 10).map(function ({
+                + result_from_file.warnings.slice(0, 10).map(function ({
                     formatted_message
                 }) {
                     return formatted_message;
                 }).join("\n")
             );
         }
+        return result_from_file;
     }
 
     function string_line_count(code) {
 
 // This function will count number of newlines in <code>.
 
-        let cnt;
+        let count;
         let ii;
 
 // https://jsperf.com/regexp-counting-2/8
 
-        cnt = 0;
+        count = 0;
         ii = 0;
         while (true) {
             ii = code.indexOf("\n", ii) + 1;
             if (ii === 0) {
                 break;
             }
-            cnt += 1;
+            count += 1;
         }
-        return cnt;
+        return count;
     }
 
 // Feature-detect nodejs.
@@ -1153,11 +1601,11 @@ async function jslint_cli({
         return exit_code;
     }
     console_error = console_error || console.error;
-    module_fs = await import("fs");
-    module_path = await import("path");
-    module_url = await import("url");
+    console_log = console_log || console.log;
     process_argv = process_argv || process.argv;
+    process_env = process_env || process.env;
     process_exit = process_exit || process.exit;
+    await moduleFsInit();
     if (!(
 
 // Feature-detect nodejs-cjs-cli.
@@ -1176,18 +1624,57 @@ async function jslint_cli({
                 ).test(process_argv[1])
                 || mode_cli
             )
-            && module_url.fileURLToPath(jslint_import_meta_url)
-            === module_path.resolve(process_argv[1])
+            && moduleUrl.fileURLToPath(jslint_import_meta_url) ===
+            modulePath.resolve(process_argv[1])
         )
     ) && !mode_cli) {
         return exit_code;
     }
 
+// init commmand
+
+    command = String(process_argv[2]).split("=");
+    command[1] = command.slice(1).join("=");
+
+    switch (command[0]) {
+
+// PR-362 - Add API Doc.
+
+    case "jslint_apidoc":
+        await jslint_apidoc(Object.assign(JSON.parse(process_argv[3]), {
+            pathname: command[1]
+        }));
+        return;
+
+// COMMIT-b26d6df2 - Add command jslint_plugin_vim.
+
+    case "jslint_plugin_vim":
+        mode_plugin_vim = true;
+        process_argv = process_argv.slice(1);
+        break;
+
+// PR-363 - Add command jslint_report.
+
+    case "jslint_report":
+        mode_report = command[1];
+        process_argv = process_argv.slice(1);
+        break;
+
+// PR-364 - Add command v8_coverage_report.
+
+    case "v8_coverage_report":
+        await v8CoverageReportCreate({
+            coverageDir: command[1],
+            processArgv: process_argv.slice(3)
+        });
+        return;
+    }
+
 // PR-349 - Detect cli-option --mode-vim-plugin.
 
-    mode_vim_plugin = (
+    mode_plugin_vim = (
         process_argv.slice(2).indexOf("--mode-vim-plugin") >= 0
-        || mode_vim_plugin
+        || mode_plugin_vim
     );
 
 // Normalize file relative to process.cwd().
@@ -1201,7 +1688,7 @@ async function jslint_cli({
     if (!file) {
         return;
     }
-    file = module_path.resolve(file) + "/";
+    file = modulePath.resolve(file) + "/";
     if (file.startsWith(process.cwd() + "/")) {
         file = file.replace(process.cwd() + "/", "").slice(0, -1) || ".";
     }
@@ -1211,79 +1698,76 @@ async function jslint_cli({
         /\/$/g
     ), "");
     if (source) {
-        jslint_from_file({
-            code: source,
-            file,
-            option
-        });
-        process_exit(exit_code);
-        return exit_code;
-    }
+        data = source;
+    } else {
 
 // jslint_cli - jslint directory.
 
-    try {
-        data = await module_fs.promises.readdir(file, "utf8");
-    } catch (ignore) {}
-    if (data) {
-        await Promise.all(data.map(async function (file2) {
-            let code;
-            let time_start = Date.now();
-            file2 = file + "/" + file2;
-            switch ((
-                /\.\w+?$|$/m
-            ).exec(file2)[0]) {
-            case ".cjs":
-            case ".html":
-            case ".js":
-            case ".json":
-            case ".md":
-            case ".mjs":
-            case ".sh":
-                break;
-            default:
-                return;
-            }
-            try {
-                code = await module_fs.promises.readFile(file2, "utf8");
-            } catch (ignore) {
-                return;
-            }
-            if (!(
-                !(
-                    /\b(?:lock|min|raw|rollup)\b/
-                ).test(file2) && code && code.length < 1048576
-            )) {
-                return;
-            }
-            jslint_from_file({
-                code,
-                file: file2,
-                option
-            });
-            console_error(
-                "jslint - " + (Date.now() - time_start) + "ms - " + file2
-            );
-        }));
-        process_exit(exit_code);
-        return exit_code;
-    }
+        try {
+            data = await moduleFs.promises.readdir(file, "utf8");
+        } catch (ignore) {}
+        if (data) {
+            await Promise.all(data.map(async function (file2) {
+                let code;
+                let time_start = Date.now();
+                file2 = file + "/" + file2;
+                switch ((
+                    /\.\w+?$|$/m
+                ).exec(file2)[0]) {
+                case ".cjs":
+                case ".html":
+                case ".js":
+                case ".json":
+                case ".mjs":
+                case ".sh":
+                    break;
+                default:
+                    return;
+                }
+                try {
+                    code = await moduleFs.promises.readFile(file2, "utf8");
+                } catch (ignore) {
+                    return;
+                }
+                if (!(
+                    !(
+                        /(?:\b|_)(?:lock|min|raw|rollup)(?:\b|_)/
+                    ).test(file2) && code && code.length < 1048576
+                )) {
+                    return;
+                }
+                jslint_from_file({
+                    code,
+                    file: file2,
+                    option
+                });
+                console_error(
+                    "jslint - " + (Date.now() - time_start) + "ms - " + file2
+                );
+            }));
+            process_exit(exit_code);
+            return exit_code;
+        }
 
 // jslint_cli - jslint file.
 
-    try {
-        data = await module_fs.promises.readFile(file, "utf8");
-    } catch (err) {
-        console_error(err);
-        exit_code = 1;
-        process_exit(exit_code);
-        return exit_code;
+        try {
+            data = await moduleFs.promises.readFile(file, "utf8");
+        } catch (err) {
+            console_error(err);
+            exit_code = 1;
+            process_exit(exit_code);
+            return exit_code;
+        }
     }
-    jslint_from_file({
+    result = jslint_from_file({
         code: data,
         file,
         option
     });
+    if (mode_report) {
+        await fsWriteFileWithParents(mode_report, jslint_report(result));
+    }
     process_exit(exit_code);
     return exit_code;
 }
@@ -1866,13 +2350,16 @@ function jslint_phase2_lex(state) {
                         warn_at("unexpected_a", line, column - 1, "-");
                     }
                     return char_after("]");
-                case " ":
 
-// test_cause:
-// ["aa=/[ ]/", "lex_regexp_bracketed", "expected_a_b", " ", 6]
+// PR-362 - Relax regexp-warning against using <space>.
+//                 case " ":
+//
+// // test_cause:
+// // ["aa=/[ ]/", "lex_regexp_bracketed", "expected_a_b", " ", 6]
+//
+//                     warn_at("expected_a_b", line, column, "\\u0020", " ");
+//                     break;
 
-                    warn_at("expected_a_b", line, column, "\\u0020", " ");
-                    break;
                 case "-":
                 case "/":
                 case "[":
@@ -1943,14 +2430,17 @@ function jslint_phase2_lex(state) {
                 case "/":
                 case "]":
                     return;
-                case " ":
 
-// test_cause:
-// ["aa=/ /", "lex_regexp_group", "expected_a_b", " ", 5]
+// PR-362 - Relax regexp-warning against using <space>.
+//                 case " ":
+//
+// // test_cause:
+// // ["aa=/ /", "lex_regexp_group", "expected_a_b", " ", 5]
+//
+//                     warn_at("expected_a_b", line, column, "\\s", " ");
+//                     char_after();
+//                     break;
 
-                    warn_at("expected_a_b", line, column, "\\s", " ");
-                    char_after();
-                    break;
                 case "$":
                     if (line_source[0] !== "/") {
                         mode_regexp_multiline = true;
@@ -2488,6 +2978,7 @@ function jslint_phase2_lex(state) {
 // Shared with Node.js.
 
                 "AbortController",
+                "DOMException",
                 "Event",
                 "EventTarget",
                 "MessageChannel",
@@ -2511,7 +3002,6 @@ function jslint_phase2_lex(state) {
 // Browser only.
 
                 // "CharacterData",
-                "DOMException",
                 // "DocumentType",
                 // "Element",
                 // "Event",
@@ -2570,31 +3060,35 @@ function jslint_phase2_lex(state) {
 
 // These are the globals that are provided by the language standard.
 // Assign global ECMAScript variables to global_dict.
-// /*jslint beta, node*/
-// import https from "https";
-// (async function () {
-//     let dict = {import: true};
-//     let result = "";
-//     await new Promise(function (resolve) {
-//         https.get((
-//             "https://raw.githubusercontent.com/mdn/content/main/files/"
-//             + "en-us/web/javascript/reference/global_objects/index.html"
-//         ), function (res) {
-//             res.on("data", function (chunk) {
-//                 result += chunk;
-//             }).on("end", resolve).setEncoding("utf8");
-//         });
-//     });
-//     result.replace((
-//         /<li>\{\{JSxRef\("(?:Global_Objects\/)?([^"\/]+?)"/g
-//     ), function (ignore, key) {
-//         if (globalThis.hasOwnProperty(key)) {
-//             dict[key] = true;
-//         }
-//         return "";
-//     });
-//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
-// }());
+/*
+node --input-type=module -e '
+// /\*jslint beta, node*\/
+import https from "https";
+(async function () {
+    let dict = {import: true};
+    let result = "";
+    await new Promise(function (resolve) {
+        https.get((
+            "https://raw.githubusercontent.com/mdn/content/main/files/"
+            + "en-us/web/javascript/reference/global_objects/index.md"
+        ), function (res) {
+            res.on("data", function (chunk) {
+                result += chunk;
+            }).on("end", resolve).setEncoding("utf8");
+        });
+    });
+    result.replace((
+        /\n- \{\{JSxRef\("(?:Global_Objects\/)?([^"\/]+?)"/g
+    ), function (ignore, key) {
+        if (globalThis.hasOwnProperty(key)) {
+            dict[key] = true;
+        }
+        return "";
+    });
+    console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+}());
+'
+*/
 
         case "ecma":
             object_assign_from_list(global_dict, [
@@ -2659,34 +3153,39 @@ function jslint_phase2_lex(state) {
             break;
 
 // Assign global Node.js variables to global_dict.
-// /*jslint beta, node*/
-// import https from "https";
-// (async function () {
-//     let dict = {};
-//     let result = "";
-//     await new Promise(function (resolve) {
-//         https.get((
-//             "https://raw.githubusercontent.com/nodejs/node/master/doc/api/"
-//             + "globals.md"
-//         ), function (res) {
-//             res.on("data", function (chunk) {
-//                 result += chunk;
-//             }).on("end", resolve).setEncoding("utf8");
-//         });
-//     });
-//     result.replace((
-//         /\n(?:\*\u0020\[`|##\u0020|##\u0020Class:\u0020)`\w+/g
-//     ), function (match0) {
-//         dict[match0.split("`")[1]] = true;
-//         return "";
-//     });
-//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
-// }());
+/*
+node --input-type=module -e '
+// /\*jslint beta, node*\/
+import moduleHttps from "https";
+(async function () {
+    let dict = {};
+    let result = "";
+    await new Promise(function (resolve) {
+        moduleHttps.get((
+            "https://raw.githubusercontent.com/nodejs/node/master/doc/api/"
+            + "globals.md"
+        ), function (res) {
+            res.on("data", function (chunk) {
+                result += chunk;
+            }).on("end", resolve).setEncoding("utf8");
+        });
+    });
+    result.replace((
+        /\n(?:\* \[`|## |## Class: )`\w+/g
+    ), function (match0) {
+        dict[match0.split("`")[1]] = true;
+        return "";
+    });
+    console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+}());
+'
+*/
 
         case "node":
             object_assign_from_list(global_dict, [
                 "AbortController",
                 "Buffer",
+                "DOMException",
                 "Event",
                 "EventTarget",
                 "MessageChannel",
@@ -2721,19 +3220,19 @@ function jslint_phase2_lex(state) {
         return true;
     }
 
-    function read_digits(mode, quiet) {
+    function read_digits(base, quiet) {
         let digits = line_source.match(
-            mode === "b"
+            base === "b"
             ? (
                 // rx_bits
                 /^[01]*/
             )
-            : mode === "o"
+            : base === "o"
             ? (
                 // rx_octals
                 /^[0-7]*/
             )
-            : mode === "x"
+            : base === "x"
             ? (
                 // rx_hexs
                 /^[0-9A-F]*/i
@@ -2995,12 +3494,6 @@ function jslint_phase3_parse(state) {
     let rx_identifier = (
         /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/
     );
-
-// PR-354 - Fix jslint not warning about illegal json-number `0.`.
-
-    let rx_json_number = (
-        /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[Ee][+\-]?\d+)?$/
-    );
     let token_ii = 0;           // The number of the next token.
     let token_now = token_global;       // The current token being examined in
                                         // ... the parse.
@@ -3239,7 +3732,7 @@ function jslint_phase3_parse(state) {
 
 // This function will warn if <case_list> is unordered.
 
-        case_list.filter(identity).map(function (token) {
+        case_list.filter(noop).map(function (token) {
             switch (token.identifier || token.id) {
             case "(number)":
                 return {
@@ -3282,7 +3775,7 @@ function jslint_phase3_parse(state) {
                 );
             }
             return bb;
-        });
+        }, undefined);
     }
 
     function condition() {
@@ -3970,15 +4463,23 @@ function jslint_phase3_parse(state) {
         let negative;
         switch (token_nxt.id) {
         case "(number)":
-            if (!rx_json_number.test(token_nxt.value)) {
+            if (!(
+
+// https://datatracker.ietf.org/doc/html/rfc7159#section-6
+// number = [ minus ] int [ frac ] [ exp ]
+
+                /^-?(?:0|[1-9]\d*?)(?:\.\d*?)?(?:[eE][+\-]?\d+?)?$/
+            ).test(token_nxt.value)) {
 
 // test_cause:
-// ["[0.]", "parse_json", "unexpected_a", "0.", 2]
+// ["[-.0]", "parse_json", "unexpected_a", ".", 3]
+// ["[-0x0]", "parse_json", "unexpected_a", "0x0", 3]
+// ["[.0]", "parse_json", "unexpected_a", ".", 2]
 // ["[0x0]", "parse_json", "unexpected_a", "0x0", 2]
 
                 warn("unexpected_a");
             }
-            advance();
+            advance("(number)");
             return token_now;
         case "(string)":
             if (token_nxt.quote !== "\"") {
@@ -3988,21 +4489,16 @@ function jslint_phase3_parse(state) {
 
                 warn("unexpected_a", token_nxt, token_nxt.quote);
             }
-            advance();
+            advance("(string)");
             return token_now;
         case "-":
             negative = token_nxt;
             negative.arity = "unary";
             advance("-");
-            advance("(number)");
-            if (!rx_json_number.test(token_now.value)) {
 
-// test_cause:
-// ["[-0x0]", "parse_json", "unexpected_a", "0x0", 3]
+// Recurse parse_json().
 
-                warn("unexpected_a", token_now);
-            }
-            negative.expression = token_now;
+            negative.expression = parse_json();
             return negative;
         case "[":
 
@@ -4037,11 +4533,11 @@ function jslint_phase3_parse(state) {
         case "true":
 
 // test_cause:
-// ["[false]", "parse_json", "advance", "", 0]
-// ["[null]", "parse_json", "advance", "", 0]
-// ["[true]", "parse_json", "advance", "", 0]
+// ["[false]", "parse_json", "constant", "", 0]
+// ["[null]", "parse_json", "constant", "", 0]
+// ["[true]", "parse_json", "constant", "", 0]
 
-            test_cause("advance");
+            test_cause("constant");
             advance();
             return token_now;
         case "{":
@@ -4138,12 +4634,19 @@ function jslint_phase3_parse(state) {
                 warn("unexpected_a", the_label);
             }
             advance(":");
-            if (
-                token_nxt.id === "do"
-                || token_nxt.id === "for"
-                || token_nxt.id === "switch"
-                || token_nxt.id === "while"
-            ) {
+            switch (token_nxt.id) {
+            case "do":
+            case "for":
+            case "switch":
+            case "while":
+
+// test_cause:
+// ["aa:do{}", "parse_statement", "the_statement_label", "do", 0]
+// ["aa:for{}", "parse_statement", "the_statement_label", "for", 0]
+// ["aa:switch{}", "parse_statement", "the_statement_label", "switch", 0]
+// ["aa:while{}", "parse_statement", "the_statement_label", "while", 0]
+
+                test_cause("the_statement_label", token_nxt.id);
                 enroll(the_label, "label", true);
                 the_label.dead = false;
                 the_label.init = true;
@@ -4393,7 +4896,7 @@ function jslint_phase3_parse(state) {
 //  if (mode_mega) {
 //      warn("unexpected_a", the_function);
 //  }
-//  assert_or_throw(!mode_mega, `Expected !mode_mega.`);
+//  jslint_assert(!mode_mega, `Expected !mode_mega.`);
 
 // Don't create functions in loops. It is inefficient, and it can lead to
 // scoping errors.
@@ -4512,94 +5015,148 @@ function jslint_phase3_parse(state) {
         const signature = ["("];
         let optional;
         let subparam;
-        if (token_nxt.id !== ")" && token_nxt.id !== "(end)") {
-            (function parameter() {
-                let ellipsis = false;
-                let param;
-                if (token_nxt.id === "{") {
-                    if (optional !== undefined) {
+        function parameter() {
+            let ellipsis = false;
+            let param;
+            if (token_nxt.id === "{") {
+                if (optional !== undefined) {
 
 // test_cause:
 // ["function aa(aa=0,{}){}", "parameter", "required_a_optional_b", "aa", 18]
 
-                        warn(
-                            "required_a_optional_b",
-                            token_nxt,
-                            token_nxt.id,
-                            optional.id
-                        );
-                    }
-                    param = token_nxt;
-                    param.names = [];
-                    advance("{");
-                    signature.push("{");
-                    while (true) {
-                        subparam = token_nxt;
-                        if (!subparam.identifier) {
+                    warn(
+                        "required_a_optional_b",
+                        token_nxt,
+                        token_nxt.id,
+                        optional.id
+                    );
+                }
+                param = token_nxt;
+                param.names = [];
+                advance("{");
+                signature.push("{");
+                while (true) {
+                    subparam = token_nxt;
+                    if (!subparam.identifier) {
 
 // test_cause:
 // ["function aa(aa=0,{}){}", "parameter", "expected_identifier_a", "}", 19]
 // ["function aa({0}){}", "parameter", "expected_identifier_a", "0", 14]
 
-                            return stop("expected_identifier_a");
-                        }
-                        survey(subparam);
+                        return stop("expected_identifier_a");
+                    }
+                    survey(subparam);
+                    advance();
+                    signature.push(subparam.id);
+                    if (token_nxt.id === ":") {
+                        advance(":");
                         advance();
-                        signature.push(subparam.id);
-                        if (token_nxt.id === ":") {
-                            advance(":");
-                            advance();
-                            token_now.label = subparam;
-                            subparam = token_now;
-                            if (!subparam.identifier) {
+                        token_now.label = subparam;
+                        subparam = token_now;
+                        if (!subparam.identifier) {
 
 // test_cause:
 // ["function aa({aa:0}){}", "parameter", "expected_identifier_a", "}", 18]
 
-                                return stop(
-                                    "expected_identifier_a",
-                                    token_nxt
-                                );
-                            }
+                            return stop(
+                                "expected_identifier_a",
+                                token_nxt
+                            );
                         }
+                    }
 
 // test_cause:
 // ["function aa({aa=aa},aa){}", "parameter", "equal", "", 0]
 
-                        test_cause("equal");
-                        if (token_nxt.id === "=") {
-                            advance("=");
-                            subparam.expression = parse_expression();
-                            param.open = true;
-                        }
-                        param.names.push(subparam);
-                        if (token_nxt.id === ",") {
-                            advance(",");
-                            signature.push(", ");
-                        } else {
-                            break;
-                        }
+                    test_cause("equal");
+                    if (token_nxt.id === "=") {
+                        advance("=");
+                        subparam.expression = parse_expression();
+                        param.open = true;
                     }
-                    list.push(param);
+                    param.names.push(subparam);
+                    if (token_nxt.id === ",") {
+                        advance(",");
+                        signature.push(", ");
+                    } else {
+                        break;
+                    }
+                }
+                list.push(param);
 
 // test_cause:
 // ["
 // function aa({bb,aa}){}
 // ", "check_ordered", "expected_a_b_before_c_d", "aa", 17]
 
-                    check_ordered("parameter", param.names);
-                    advance("}");
-                    signature.push("}");
-                    if (token_nxt.id === ",") {
-                        advance(",");
-                        signature.push(", ");
-                        return parameter();
-                    }
-                } else if (token_nxt.id === "[") {
-                    if (optional !== undefined) {
+                check_ordered("parameter", param.names);
+                advance("}");
+                signature.push("}");
+                if (token_nxt.id === ",") {
+                    advance(",");
+                    signature.push(", ");
+                    return parameter();
+                }
+            } else if (token_nxt.id === "[") {
+                if (optional !== undefined) {
 
 // test_cause:
 // ["function aa(aa=0,[]){}", "parameter", "required_a_optional_b", "aa", 18]
+
+                    warn(
+                        "required_a_optional_b",
+                        token_nxt,
+                        token_nxt.id,
+                        optional.id
+                    );
+                }
+                param = token_nxt;
+                param.names = [];
+                advance("[");
+                signature.push("[]");
+                while (true) {
+                    subparam = token_nxt;
+                    if (!subparam.identifier) {
+
+// test_cause:
+// ["function aa(aa=0,[]){}", "parameter", "expected_identifier_a", "]", 19]
+
+                        return stop("expected_identifier_a");
+                    }
+                    advance();
+                    param.names.push(subparam);
+
+// test_cause:
+// ["function aa([aa=aa],aa){}", "parameter", "id", "", 0]
+
+                    test_cause("id");
+                    if (token_nxt.id === "=") {
+                        advance("=");
+                        subparam.expression = parse_expression();
+                        param.open = true;
+                    }
+                    if (token_nxt.id === ",") {
+                        advance(",");
+                    } else {
+                        break;
+                    }
+                }
+                list.push(param);
+                advance("]");
+                if (token_nxt.id === ",") {
+                    advance(",");
+                    signature.push(", ");
+                    return parameter();
+                }
+            } else {
+                if (token_nxt.id === "...") {
+                    ellipsis = true;
+                    signature.push("...");
+                    advance("...");
+                    if (optional !== undefined) {
+
+// test_cause:
+// ["function aa(aa=0,...){}", "parameter", "required_a_optional_b", "aa", 21]
 
                         warn(
                             "required_a_optional_b",
@@ -4608,102 +5165,49 @@ function jslint_phase3_parse(state) {
                             optional.id
                         );
                     }
-                    param = token_nxt;
-                    param.names = [];
-                    advance("[");
-                    signature.push("[]");
-                    while (true) {
-                        subparam = token_nxt;
-                        if (!subparam.identifier) {
+                }
+                if (!token_nxt.identifier) {
 
 // test_cause:
-// ["function aa(aa=0,[]){}", "parameter", "expected_identifier_a", "]", 19]
+// ["function aa(0){}", "parameter", "expected_identifier_a", "0", 13]
 
-                            return stop("expected_identifier_a");
-                        }
-                        advance();
-                        param.names.push(subparam);
+                    return stop("expected_identifier_a");
+                }
+                param = token_nxt;
+                list.push(param);
+                advance();
+                signature.push(param.id);
+                if (ellipsis) {
+                    param.ellipsis = true;
+                } else {
+                    if (token_nxt.id === "=") {
+                        optional = param;
+                        advance("=");
+                        param.expression = parse_expression(0);
+                    } else {
+                        if (optional !== undefined) {
 
 // test_cause:
-// ["function aa([aa=aa],aa){}", "parameter", "id", "", 0]
+// ["function aa(aa=0,bb){}", "parameter", "required_a_optional_b", "aa", 18]
 
-                        test_cause("id");
-                        if (token_nxt.id === "=") {
-                            advance("=");
-                            subparam.expression = parse_expression();
-                            param.open = true;
-                        }
-                        if (token_nxt.id === ",") {
-                            advance(",");
-                        } else {
-                            break;
+                            warn(
+                                "required_a_optional_b",
+                                param,
+                                param.id,
+                                optional.id
+                            );
                         }
                     }
-                    list.push(param);
-                    advance("]");
                     if (token_nxt.id === ",") {
                         advance(",");
                         signature.push(", ");
                         return parameter();
                     }
-                } else {
-                    if (token_nxt.id === "...") {
-                        ellipsis = true;
-                        signature.push("...");
-                        advance("...");
-                        if (optional !== undefined) {
-
-// test_cause:
-// ["function aa(aa=0,...){}", "parameter", "required_a_optional_b", "aa", 21]
-
-                            warn(
-                                "required_a_optional_b",
-                                token_nxt,
-                                token_nxt.id,
-                                optional.id
-                            );
-                        }
-                    }
-                    if (!token_nxt.identifier) {
-
-// test_cause:
-// ["function aa(0){}", "parameter", "expected_identifier_a", "0", 13]
-
-                        return stop("expected_identifier_a");
-                    }
-                    param = token_nxt;
-                    list.push(param);
-                    advance();
-                    signature.push(param.id);
-                    if (ellipsis) {
-                        param.ellipsis = true;
-                    } else {
-                        if (token_nxt.id === "=") {
-                            optional = param;
-                            advance("=");
-                            param.expression = parse_expression(0);
-                        } else {
-                            if (optional !== undefined) {
-
-// test_cause:
-// ["function aa(aa=0,bb){}", "parameter", "required_a_optional_b", "aa", 18]
-
-                                warn(
-                                    "required_a_optional_b",
-                                    param,
-                                    param.id,
-                                    optional.id
-                                );
-                            }
-                        }
-                        if (token_nxt.id === ",") {
-                            advance(",");
-                            signature.push(", ");
-                            return parameter();
-                        }
-                    }
                 }
-            }());
+            }
+        }
+        if (token_nxt.id !== ")" && token_nxt.id !== "(end)") {
+            parameter();
         }
         advance(")");
         signature.push(")");
@@ -5314,8 +5818,8 @@ function jslint_phase3_parse(state) {
     }
 
     function stmt_for() {
-        const the_for = token_now;
         let first;
+        let the_for = token_now;
         if (!option_dict.for) {
 
 // test_cause:
@@ -5334,11 +5838,10 @@ function jslint_phase3_parse(state) {
 
             return stop("expected_a_b", the_for, "while (", "for (;");
         }
-        if (
-            token_nxt.id === "var"
-            || token_nxt.id === "let"
-            || token_nxt.id === "const"
-        ) {
+        switch (token_nxt.id) {
+        case "const":
+        case "let":
+        case "var":
 
 // test_cause:
 // ["for(const aa in aa){}", "stmt_for", "unexpected_a", "const", 5]
@@ -5633,10 +6136,16 @@ function jslint_phase3_parse(state) {
             if (stmts.length < 1) {
 
 // test_cause:
+// ["
+// switch(0){case 0:default:}
+// ", "stmt_switch", "expected_statements_a", "default", 18]
 // ["switch(0){case 0:}", "stmt_switch", "expected_statements_a", "}", 18]
 
                 warn("expected_statements_a");
-                return;
+
+// PR-359 - Bugfix - Fixes issue #358 - switch-statement crashes jslint.
+
+                break;
             }
             the_case.block = stmts;
             the_cases.push(the_case);
@@ -5911,9 +6420,18 @@ function jslint_phase3_parse(state) {
 
                             return stop("expected_identifier_a");
                         }
-                        token_nxt.label = name;
-                        the_variable.names.push(token_nxt);
-                        enroll(token_nxt, "variable", mode_const);
+
+// PR-363 - Bugfix - fix false-warning
+// <uninitialized 'bb'> in code '/*jslint node*/\nlet {aa:bb} = {}; bb();'
+
+                        // token_nxt.label = name;
+                        // the_variable.names.push(token_nxt);
+                        // enroll(token_nxt, "variable", mode_const);
+                        name = token_nxt;
+                        the_variable.names.push(name);
+                        survey(name);
+                        enroll(name, "variable", mode_const);
+
                         advance();
                         the_brace.open = true;
                     } else {
@@ -6505,9 +7023,7 @@ function jslint_phase4_walk(state) {
 
 // Look up the variable in the current context.
 
-        the_variable = (
-            functionage.context[id] || catchage.context[id]
-        );
+        the_variable = functionage.context[id] || catchage.context[id];
 
 // If it isn't local, search all the other contexts. If there are name
 // collisions, take the most recent.
@@ -6602,7 +7118,7 @@ function jslint_phase4_walk(state) {
 //     init_variable(thing.names);
 // }
 
-                assert_or_throw(
+                jslint_assert(
                     !Array.isArray(thing.names),
                     `Expected !Array.isArray(thing.names).`
                 );
@@ -6974,6 +7490,9 @@ function jslint_phase4_walk(state) {
     }
 
     function post_s_for(thing) {
+
+// Recurse walk_statement().
+
         walk_statement(thing.inc);
     }
 
@@ -7029,6 +7548,9 @@ function jslint_phase4_walk(state) {
                     init: true
                 });
             }
+
+// Recurse walk_statement().
+
             walk_statement(thing.catch.block);
 
 // Restore previous catch-scope after catch-block.
@@ -7050,7 +7572,7 @@ function jslint_phase4_walk(state) {
 //     name.init = true;
 // }
 
-                assert_or_throw(
+                jslint_assert(
                     !(name.id === "{" || name.id === "["),
                     `Expected !(name.id === "{" || name.id === "[").`
                 );
@@ -7342,18 +7864,40 @@ function jslint_phase4_walk(state) {
         });
     }
 
-    function pre_s_f(thing) {
+    function pre_s_for(thing) {
+        let the_variable;
+        if (thing.name !== undefined) {
+            thing.name.dead = false;
+            the_variable = lookup(thing.name);
+            if (the_variable !== undefined) {
+                if (the_variable.init && the_variable.readonly) {
 
 // test_cause:
-// ["()=>0", "pre_s_f", "", "", 0]
-// ["(function (){}())", "pre_s_f", "", "", 0]
-// ["function aa(){}", "pre_s_f", "", "", 0]
+// ["const aa=0;for(aa in aa){}", "pre_s_for", "bad_assignment_a", "aa", 16]
+
+                    warn("bad_assignment_a", thing.name);
+                }
+                the_variable.init = true;
+            }
+        }
+
+// Recurse walk_statement().
+
+        walk_statement(thing.initial);
+    }
+
+    function pre_s_function(thing) {
+
+// test_cause:
+// ["()=>0", "pre_s_function", "", "", 0]
+// ["(function (){}())", "pre_s_function", "", "", 0]
+// ["function aa(){}", "pre_s_function", "", "", 0]
 
         test_cause("");
         if (thing.arity === "statement" && blockage.body !== true) {
 
 // test_cause:
-// ["if(0){function aa(){}\n}", "pre_s_f", "unexpected_a", "function", 7]
+// ["if(0){function aa(){}\n}", "pre_s_function", "unexpected_a", "function", 7]
 
             warn("unexpected_a", thing);
         }
@@ -7370,7 +7914,10 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 0) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={get aa(aa){}}", "pre_s_f", "bad_get", "function", 9]
+// ["
+// /*jslint getset*/
+// aa={get aa(aa){}}
+// ", "pre_s_function", "bad_get", "function", 9]
 
                 warn("bad_get", thing);
             }
@@ -7378,7 +7925,10 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 1) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={set aa(){}}", "pre_s_f", "bad_set", "function", 9]
+// ["
+// /*jslint getset*/
+// aa={set aa(){}}
+// ", "pre_s_function", "bad_set", "function", 9]
 
                 warn("bad_set", thing);
             }
@@ -7392,24 +7942,6 @@ function jslint_phase4_walk(state) {
                 name.init = true;
             }
         });
-    }
-
-    function pre_s_for(thing) {
-        let the_variable;
-        if (thing.name !== undefined) {
-            the_variable = lookup(thing.name);
-            if (the_variable !== undefined) {
-                the_variable.init = true;
-                if (the_variable.readonly) {
-
-// test_cause:
-// ["const aa=0;for(aa in aa){}", "pre_s_for", "bad_assignment_a", "aa", 16]
-
-                    warn("bad_assignment_a", thing.name);
-                }
-            }
-        }
-        walk_statement(thing.initial);
     }
 
     function pre_s_lbrace(thing) {
@@ -7461,6 +7993,9 @@ function jslint_phase4_walk(state) {
 // ["aa=function(){}", "walk_expression", "function", "", 0]
 
                     test_cause("function");
+
+// Recurse walk_statement().
+
                     walk_statement(thing.block);
                 }
                 if (
@@ -7500,6 +8035,9 @@ function jslint_phase4_walk(state) {
 // ["+[]", "walk_statement", "isArray", "", 0]
 
                 test_cause("isArray");
+
+// Recurse walk_statement().
+
                 thing.forEach(walk_statement);
             } else {
                 preamble(thing);
@@ -7530,6 +8068,9 @@ function jslint_phase4_walk(state) {
 
                     warn("unexpected_expression_a", thing);
                 }
+
+// Recurse walk_statement().
+
                 walk_statement(thing.block);
                 walk_statement(thing.else);
                 postamble(thing);
@@ -7566,17 +8107,17 @@ function jslint_phase4_walk(state) {
     preaction("binary", "!=", pre_b_noteq);
     preaction("binary", "(", pre_b_lparen);
     preaction("binary", "==", pre_b_eqeq);
-    preaction("binary", "=>", pre_s_f);
+    preaction("binary", "=>", pre_s_function);
     preaction("binary", "in", pre_b_in);
     preaction("binary", "instanceof", pre_b_instanceof);
     preaction("binary", "||", pre_b_or);
     preaction("binary", pre_b);
     preaction("binary", pre_a_bitwise);
     preaction("statement", "for", pre_s_for);
-    preaction("statement", "function", pre_s_f);
+    preaction("statement", "function", pre_s_function);
     preaction("statement", "try", pre_try);
     preaction("statement", "{", pre_s_lbrace);
-    preaction("unary", "function", pre_s_f);
+    preaction("unary", "function", pre_s_function);
     preaction("unary", "~", pre_a_bitwise);
     preaction("variable", pre_v);
 
@@ -7669,7 +8210,7 @@ function jslint_phase5_whitage(state) {
 //     || name.parent.arity !== "unary"
 // )
 
-                    && assert_or_throw(
+                    && jslint_assert(
                         name.role !== "function",
                         `Expected name.role !== "function".`
                     )
@@ -7699,7 +8240,7 @@ function jslint_phase5_whitage(state) {
 //     right = token_nxt;
 // }
 
-        assert_or_throw(
+        jslint_assert(
             !(right === undefined),
             `Expected !(right === undefined).`
         );
@@ -7762,8 +8303,8 @@ function jslint_phase5_whitage(state) {
 //     }
 // }
 
-            assert_or_throw(open, `Expected open.`);
-            assert_or_throw(free, `Expected free.`);
+            jslint_assert(open, `Expected open.`);
+            jslint_assert(free, `Expected free.`);
             if (right.from < margin) {
 
 // test_cause:
@@ -7884,7 +8425,7 @@ function jslint_phase5_whitage(state) {
 // Probably deadcode.
 // case "${}":
 
-                assert_or_throw(
+                jslint_assert(
                     !(left.id + right.id === "${}"),
                     "Expected !(left.id + right.id === \"${}\")."
                 );
@@ -8250,11 +8791,731 @@ function jslint_phase5_whitage(state) {
     });
 }
 
-function noop() {
+function jslint_report({
+    exports,
+    froms,
+    functions,
+    global,
+    json,
+    module,
+    property,
+    stop,
+    warnings
+}) {
 
-// This function will do nothing.
+// This function will create human-readable, html-report
+// for warnings, properties, and functions from jslint-result-object.
+// Example usage:
+//  let result = jslint("console.log('hello world')");
+//  let html = jslint_report(result);
 
-    return;
+    let html = "";
+    let length_80 = 1111;
+
+    function detail(title, list) {
+        return (
+            (Array.isArray(list) && list.length > 0)
+            ? (
+
+// Google Lighthouse Accessibility - <dl>'s do not contain only properly-ordered
+// <dt> and <dd> groups, <script>, <template> or <div> elements.
+
+                "<dl>"
+                + "<dt>" + htmlEscape(title) + "</dt>"
+                + "<dd>" + list.join(", ") + "</dd>"
+                + "</dl>"
+            )
+            : ""
+        );
+    }
+
+    html += "<div class=\"JSLINT_\" id=\"JSLINT_REPORT_HTML\">\n";
+    html += String(`
+<style class="JSLINT_REPORT_STYLE">
+/* jslint utility2:true */
+/*csslint box-model: false, ids:false */
+/*csslint ignore:start*/
+@font-face {
+    font-display: swap;
+    font-family: "Daley";
+    src: url(
+"data:font/woff2;base64,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\
+/7xoEqvL+2E8VOyCTuT/7j269Zy4jUtN+g4="
+    ) format("woff2");
+}
+*,
+*:after,
+*:before {
+    border: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+.JSLINT_ {
+    -ms-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+}
+/*csslint ignore:end*/
+
+.JSLINT_ {
+    font-family: daley, sans-serif;
+    font-size: 14px;
+}
+.JSLINT_ fieldset legend,
+.JSLINT_ .center {
+    font-family: daley, sans-serif;
+    font-size: 14px;
+    text-align: center;
+}
+.JSLINT_ fieldset textarea,
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS dt,
+.JSLINT_ #JSLINT_REPORT_WARNINGS samp {
+    font-size: 12px;
+}
+.JSLINT_ fieldset textarea,
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS > div {
+    font-family: monospace;
+}
+.JSLINT_ fieldset > div {
+    font-family: sans-serif;
+}
+
+body {
+    background: antiquewhite;
+}
+.JSLINT_ fieldset {
+    background: gainsboro;
+    clear: both;
+    margin: 16px 40px;
+    width: auto;
+}
+.JSLINT_ fieldset address {
+    float: right;
+}
+.JSLINT_ fieldset legend {
+    background: darkslategray;
+    color: white;
+    padding: 4px 0;
+    width: 100%;
+}
+.JSLINT_ fieldset textarea {
+    padding: 4px;
+    resize: none;
+    white-space: pre;
+    width: 100%;
+}
+.JSLINT_ fieldset textarea::selection {
+    background: wheat;
+}
+.JSLINT_ fieldset > div {
+    padding: 16px;
+    width: 100%;
+    word-wrap: break-word;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level {
+    background: cornsilk;
+    padding: 8px 16px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dd {
+    line-height: 20px;
+    padding-left: 120px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
+    display: block;
+    font-style: normal;
+    font-weight: bold;
+    line-height: 20px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dl {
+    position: relative
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
+    font-style: italic;
+    line-height: 20px;
+    position: absolute;
+    text-align: right;
+    width: 100px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level0 {
+    background: white;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level1 {
+    /* yellow */
+    background: #ffffe0;
+    margin-left: 16px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level2 {
+    /* green */
+    background: #e0ffe0;
+    margin-left: 32px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level3 {
+    /* blue */
+    background: #D0D0ff;
+    margin-left: 48px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level4 {
+    /* purple */
+    background: #ffe0ff;
+    margin-left: 64px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level5 {
+    /* red */
+    background: #ffe0e0;
+    margin-left: 80px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level6 {
+    /* orange */
+    background: #ffe390;
+    margin-left: 96px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level7 {
+    /* gray */
+    background: #e0e0e0;
+    margin-left: 112px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level8 {
+    margin-left: 128px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level9 {
+    margin-left: 144px;
+}
+.JSLINT_ #JSLINT_REPORT_PROPERTIES {
+    background: transparent;
+}
+.JSLINT_ #JSLINT_REPORT_PROPERTIES textarea {
+    background: honeydew;
+    height: 100px;
+}
+.JSLINT_ #JSLINT_REPORT_TITLE {
+    color: darkslategray;
+    font-size: 32px;
+    padding-top: 16px;
+    text-align: center;
+}
+.JSLINT_ #JSLINT_REPORT_WARNINGS cite {
+    display: block;
+    margin: 16px 0 4px 0;
+    overflow-x: hidden;
+    white-space: pre-line;
+}
+.JSLINT_ #JSLINT_REPORT_WARNINGS cite:nth-child(1) {
+    margin-top: 0;
+}
+.JSLINT_ #JSLINT_REPORT_WARNINGS samp {
+    background: lavenderblush;
+    display: block;
+    padding: 4px;
+    white-space: pre-wrap;
+}
+.JSLINT_ #JSLINT_REPORT_WARNINGS > div {
+    background: pink;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
+}
+</style>
+            `).trim() + "\n";
+
+// Produce the Title.
+
+    html += "<div id=\"JSLINT_REPORT_TITLE\">\n";
+    html += "JSLint Report\n";
+    html += "</div>\n";
+
+// Produce the HTML Error Report.
+// <cite>
+//     <address>LINE_NUMBER</address>
+//     MESSAGE
+// </cite>
+// <samp>EVIDENCE</samp>
+
+    html += "<fieldset id=\"JSLINT_REPORT_WARNINGS\">\n";
+    html += "<legend>Report: Warnings (" + warnings.length + ")</legend>\n";
+    html += "<div>\n";
+    if (stop) {
+        html += "<div class=\"center\">JSLint was unable to finish.</div>\n";
+    }
+    warnings.forEach(function ({
+        column,
+        line,
+        line_source,
+        message,
+        stack_trace = ""
+    }, ii) {
+        html += (
+            "<cite>"
+            + "<address>" + htmlEscape(line + ": " + column) + "</address>"
+            + htmlEscape((ii + 1) + ". " + message)
+            + "</cite>"
+            + "<samp>"
+            + htmlEscape(line_source.slice(0, 400) + "\n" + stack_trace)
+            + "</samp>\n"
+        );
+    });
+    if (warnings.length === 0) {
+        html += "<div class=\"center\">There are no warnings.</div>\n";
+    }
+    html += "</div>\n";
+    html += "</fieldset>\n";
+
+// Produce the /*property*/ directive.
+
+    html += "<fieldset id=\"JSLINT_REPORT_PROPERTIES\">\n";
+    html += (
+        "<legend>Report: Properties ("
+        + Object.keys(property).length
+        + ")</legend>\n"
+    );
+    html += "<label>\n";
+    html += "<textarea readonly>";
+    html += "/*property";
+    Object.keys(property).sort().forEach(function (key, ii) {
+        if (ii !== 0) {
+            html += ",";
+            length_80 += 2;
+        }
+        if (length_80 + key.length >= 80) {
+            length_80 = 4;
+            html += "\n   ";
+        }
+        html += " " + key;
+        length_80 += key.length;
+    });
+    html += "\n*/\n";
+    html += "</textarea>\n";
+    html += "</label>\n";
+    html += "</fieldset>\n";
+
+// Produce the HTML Function Report.
+// <div class=LEVEL>
+//     <address>LINE_NUMBER</address>
+//     <dfn>FUNCTION_NAME_AND_SIGNATURE</dfn>
+//     <dl>
+//         <dt>DETAIL</dt>
+//         <dd>NAMES</dd>
+//     </dl>
+// </div>
+
+    html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">\n";
+    html += "<legend>Report: Functions (" + functions.length + ")</legend>\n";
+    html += "<div>\n";
+    if (json) {
+
+// Bugfix - fix website crashing when linting pure json-object.
+// return (
+
+        html += (
+            warnings.length === 0
+            ? "<div class=\"center\">JSON: good.</div>\n"
+            : "<div class=\"center\">JSON: bad.</div>\n"
+        );
+    } else if (functions.length === 0) {
+        html += "<div class=\"center\">There are no functions.</div>\n";
+    }
+    exports = Object.keys(exports).sort();
+    froms.sort();
+    global = Object.keys(global.context).sort();
+    module = (
+        module
+        ? "module"
+        : "global"
+    );
+    if (global.length + froms.length + exports.length > 0) {
+        html += "<div class=\"level level0\">\n";
+        html += detail(module, global);
+        html += detail("import from", froms);
+        html += detail("export", exports);
+        html += "</div>\n";
+    }
+    functions.forEach(function (the_function) {
+        let {
+            context,
+            level,
+            line,
+            name,
+
+// Bugfix - fix html-report from crashing if parameters is undefined.
+
+            parameters = [],
+            signature
+        } = the_function;
+        let list = Object.keys(context);
+        let params;
+        html += (
+            "<div class=\"level level" + htmlEscape(level) + "\">"
+            + "<address>" + htmlEscape(line) + "</address>"
+            + "<dfn>"
+            + (
+                name === "=>"
+                ? htmlEscape(signature) + " =>"
+                : (
+                    typeof name === "string"
+                    ? "\u00ab" + htmlEscape(name) + "\u00bb"
+                    : htmlEscape(name.id)
+                )
+            ) + htmlEscape(signature)
+            + "</dfn>"
+        );
+        params = [];
+        parameters.forEach(function extract({
+            id,
+            names
+        }) {
+            switch (id) {
+            case "[":
+            case "{":
+
+// Recurse extract().
+
+                names.forEach(extract);
+                break;
+            case "ignore":
+                break;
+            default:
+                params.push(id);
+            }
+        });
+        html += detail("parameter", params.sort());
+        list.sort();
+        html += detail("variable", list.filter(function (id) {
+            return (
+                context[id].role === "variable"
+                && context[id].parent === the_function
+            );
+        }));
+        html += detail("exception", list.filter(function (id) {
+            return context[id].role === "exception";
+        }));
+        html += detail("closure", list.filter(function (id) {
+            return (
+                context[id].closure === true
+                && context[id].parent === the_function
+            );
+        }));
+        html += detail("outer", list.filter(function (id) {
+            return (
+                context[id].parent !== the_function
+                && context[id].parent.id !== "(global)"
+            );
+        }));
+        html += detail(module, list.filter(function (id) {
+            return context[id].parent.id === "(global)";
+        }));
+        html += detail("label", list.filter(function (id) {
+            return context[id].role === "label";
+        }));
+        html += "</div>\n";
+    });
+    html += "</div>\n";
+    html += "</fieldset>\n";
+    html += "</div>\n";
+    return html;
+}
+
+async function jstestDescribe(description, testFunction) {
+
+// This function will create-and-run test-group <testFunction>
+// with given <description>.
+
+    let message;
+    let result;
+
+// Init jstestTimeStart.
+
+    if (jstestTimeStart === undefined) {
+        jstestTimeStart = jstestTimeStart || Date.now();
+        process.on("exit", jstestOnExit);
+    }
+
+// Init jstestItList.
+
+    jstestItList = [];
+    testFunction();
+
+// Wait for jstestItList to resolve.
+
+    result = await Promise.all(jstestItList);
+
+// Print test results.
+
+    message = (
+        "\n  " + (Date.now() - jstestTimeStart) + "ms"
+        + " - test describe - " + description + "\n"
+        + result.map(function ([
+            err, description, mode
+        ]) {
+            jstestItCount += 1;
+            if (err) {
+                jstestCountFailed += 1;
+                err = (
+                    "    \u001b[31m\u2718 " + jstestItCount + ". test it - "
+                    + description + "\n" + err.stack + "\u001b[39m"
+                );
+                if (mode === "pass") {
+                    jstestCountFailed -= 1;
+                    err = "";
+                }
+            }
+            return err || (
+                "    \u001b[32m\u2714 " + jstestItCount + ". test it - "
+                + description + "\u001b[39m"
+            );
+        }).join("\n")
+    );
+    console.error(message);
+}
+
+function jstestIt(description, testFunction, mode) {
+
+// This function will create-and-run test-case <testFunction>
+// inside current test-group with given <description>.
+
+    jstestCountTotal += 1;
+    jstestItList.push(new Promise(async function (resolve) {
+        let err;
+        try {
+            await testFunction();
+        } catch (errCaught) {
+            err = errCaught;
+        }
+        resolve([
+            err, description, mode
+        ]);
+    }));
+}
+
+function jstestOnExit(exitCode, processExit, countFailed) {
+
+// This function will on process-exit, print test-report
+// and exit with non-zero exit-code if any test failed.
+
+    let message = (
+        (
+            (jstestCountFailed || countFailed)
+            ? "\n\u001b[31m"
+            : "\n\u001b[32m"
+        )
+        + "  tests total  - " + jstestCountTotal + "\n"
+        + "  tests failed - " + jstestCountFailed + "\n"
+        + "\u001b[39m"
+    );
+    if (!processExit) {
+        console.error(message);
+        processExit = process.exit;
+    }
+    processExit(exitCode || jstestCountFailed);
+    return message;
+}
+
+async function moduleFsInit() {
+
+// This function will import nodejs builtin-modules if they have not yet been
+// imported.
+
+// State 3 - Modules already imported.
+
+    if (moduleFs !== undefined) {
+        return;
+    }
+
+// State 2 - Wait while modules are importing.
+
+    if (moduleFsInitResolveList !== undefined) {
+        return new Promise(function (resolve) {
+            moduleFsInitResolveList.push(resolve);
+        });
+    }
+
+// State 1 - Start importing modules.
+
+    moduleFsInitResolveList = [];
+    [
+        moduleChildProcess,
+        moduleFs,
+        modulePath,
+        moduleUrl
+    ] = await Promise.all([
+        import("child_process"),
+        import("fs"),
+        import("path"),
+        import("url")
+    ]);
+    while (moduleFsInitResolveList.length > 0) {
+        moduleFsInitResolveList.shift()();
+    }
+}
+
+function noop(val) {
+
+// This function will do nothing except return <val>.
+
+    return val;
+}
+
+function objectDeepCopyWithKeysSorted(obj) {
+
+// This function will recursively deep-copy <obj> with keys sorted.
+
+    let sorted;
+    if (typeof obj !== "object" || !obj) {
+        return obj;
+    }
+
+// recursively deep-copy list with child-keys sorted
+
+    if (Array.isArray(obj)) {
+        return obj.map(objectDeepCopyWithKeysSorted);
+    }
+
+// recursively deep-copy obj with keys sorted
+
+    sorted = {};
+    Object.keys(obj).sort().forEach(function (key) {
+        sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
+    });
+    return sorted;
 }
 
 function object_assign_from_list(dict, list, val) {
@@ -8267,15 +9528,1383 @@ function object_assign_from_list(dict, list, val) {
     return dict;
 }
 
-// Export jslint as commonjs/es-module.
+function v8CoverageListMerge(processCovs) {
+
+// This function is derived from MIT Licensed v8-coverage at
+// https://github.com/demurgos/v8-coverage/tree/master/ts
+// https://github.com/demurgos/v8-coverage/blob/master/ts/LICENSE.md
+//
+// Merges a list of v8 process coverages.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+// @param processCovs Process coverages to merge.
+// @return Merged process coverage.
+
+    let resultMerged = [];      // List of merged scripts from processCovs.
+    let urlToScriptDict = new Map();    // Map scriptCov.url to scriptCovs.
+
+    function compareRangeList(aa, bb) {
+
+// Compares two range coverages.
+// The ranges are first ordered by ascending `startOffset` and then by
+// descending `endOffset`.
+// This corresponds to a pre-order tree traversal.
+
+        if (aa.startOffset !== bb.startOffset) {
+            return aa.startOffset - bb.startOffset;
+        }
+        return bb.endOffset - aa.endOffset;
+    }
+
+    function dictKeyValueAppend(dict, key, val) {
+
+// This function will append <val> to list <dict>[<key>].
+
+        let list = dict.get(key);
+        if (list === undefined) {
+            list = [];
+            dict.set(key, list);
+        }
+        list.push(val);
+    }
+
+    function mergeTreeList(parentTrees) {
+
+// This function will return RangeTree object with <parentTrees> merged into
+// property-children.
+// @precondition Same `start` and `end` for all the parentTrees
+
+        if (parentTrees.length <= 1) {
+            return parentTrees[0];
+        }
+
+// new RangeTree().
+
+        return {
+
+// Merge parentTrees into property-children.
+
+            children: mergeTreeListToChildren(parentTrees),
+            delta: parentTrees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: parentTrees[0].end,
+            start: parentTrees[0].start
+        };
+    }
+
+    function mergeTreeListToChildren(parentTrees) {
+
+// This function will return <resultChildren> with <parentTrees> merged.
+
+        let openRange;
+        let parentToChildDict = new Map();      // Map parent to child.
+        let queueList;
+        let queueListIi = 0;
+        let queueOffset;
+        let queueTrees;
+        let resultChildren = [];
+        let startToTreeDict = new Map();        // Map tree.start to tree.
+        function nextXxx() {
+
+// Increment nextOffset, nextTrees.
+
+            let [
+                nextOffset, nextTrees
+            ] = queueList[queueListIi] || [];
+            let openRangeEnd;
+            if (queueTrees === undefined) {
+                queueListIi += 1;
+
+// Increment nextOffset, nextTrees.
+
+            } else if (nextOffset === undefined || nextOffset > queueOffset) {
+                nextOffset = queueOffset;
+                nextTrees = queueTrees;
+                queueTrees = undefined;
+
+// Concat queueTrees to nextTrees.
+
+            } else {
+                if (nextOffset === queueOffset) {
+                    queueTrees.forEach(function (tree) {
+                        nextTrees.push(tree);
+                    });
+                    queueTrees = undefined;
+                }
+                queueListIi += 1;
+            }
+
+// Reached end of queueList.
+
+            if (nextOffset === undefined) {
+                if (openRange !== undefined) {
+
+// Append nested-children from parentToChildDict (within openRange) to
+// resultChildren.
+
+                    resultAppendNextChild();
+                }
+                return true;
+            }
+            if (openRange !== undefined && openRange.end <= nextOffset) {
+
+// Append nested-children from parentToChildDict (within openRange) to
+// resultChildren.
+
+                resultAppendNextChild();
+                openRange = undefined;
+            }
+            if (openRange === undefined) {
+                openRangeEnd = nextOffset + 1;
+                nextTrees.forEach(function ({
+                    parentIi,
+                    tree
+                }) {
+                    openRangeEnd = Math.max(openRangeEnd, tree.end);
+
+// Append children from nextTrees to parentToChildDict.
+
+                    dictKeyValueAppend(parentToChildDict, parentIi, tree);
+                });
+                queueOffset = openRangeEnd;
+                openRange = {
+                    end: openRangeEnd,
+                    start: nextOffset
+                };
+            } else {
+                nextTrees.forEach(function ({
+                    parentIi,
+                    tree
+                }) {
+                    let right;
+                    if (tree.end > openRange.end) {
+                        right = treeSplit(tree, openRange.end);
+                        if (queueTrees === undefined) {
+                            queueTrees = [];
+                        }
+
+// new RangeTreeWithParent().
+
+                        queueTrees.push({
+                            parentIi,
+                            tree: right
+                        });
+                    }
+
+// Append children from nextTrees to parentToChildDict.
+
+                    dictKeyValueAppend(parentToChildDict, parentIi, tree);
+                });
+            }
+        }
+        function resultAppendNextChild() {
+
+// This function will append next child to <resultChildren>.
+
+            let treesMatching = [];
+            parentToChildDict.forEach(function (nested) {
+                if (
+                    nested.length === 1
+                    && nested[0].start === openRange.start
+                    && nested[0].end === openRange.end
+                ) {
+                    treesMatching.push(nested[0]);
+                } else {
+
+// new rangeTreeCreate().
+
+                    treesMatching.push({
+                        children: nested,
+                        delta: 0,
+                        end: openRange.end,
+                        start: openRange.start
+                    });
+                }
+            });
+            parentToChildDict.clear();
+
+// Recurse mergeTreeList().
+
+            resultChildren.push(mergeTreeList(treesMatching));
+        }
+        function treeSplit(tree, offset) {
+
+// This function will split <tree> along <offset> and return the right-side.
+// @precondition `tree.start < offset && offset < tree.end`
+// @return RangeTree Right part
+
+            let child;
+            let ii = 0;
+            let leftChildLen = tree.children.length;
+            let mid;
+            let resultTree;
+            let rightChildren;
+
+// TODO(perf): Binary search (check overhead) //jslint-quiet
+
+            while (ii < tree.children.length) {
+                child = tree.children[ii];
+                if (child.start < offset && offset < child.end) {
+
+// Recurse treeSplit().
+
+                    mid = treeSplit(child, offset);
+                    leftChildLen = ii + 1;
+                    break;
+                }
+                if (child.start >= offset) {
+                    leftChildLen = ii;
+                    break;
+                }
+                ii += 1;
+            }
+            rightChildren = tree.children.splice(
+                leftChildLen,
+                tree.children.length - leftChildLen
+            );
+            if (mid !== undefined) {
+                rightChildren.unshift(mid);
+            }
+
+// new rangeTreeCreate().
+
+            resultTree = {
+                children: rightChildren,
+                delta: tree.delta,
+                end: tree.end,
+                start: offset
+            };
+            tree.end = offset;
+            return resultTree;
+        }
+
+// Init startToTreeDict.
+
+        parentTrees.forEach(function (parentTree, parentIi) {
+            parentTree.children.forEach(function (child) {
+
+// Append child with child.start to startToTreeDict.
+
+                dictKeyValueAppend(startToTreeDict, child.start, {
+                    parentIi,
+                    tree: child
+                });
+            });
+        });
+
+// init queueList.
+
+        queueList = Array.from(startToTreeDict).map(function ([
+            startOffset, trees
+        ]) {
+
+// new StartEvent().
+
+            return [
+                startOffset, trees
+            ];
+        }).sort(function (aa, bb) {
+            return aa[0] - bb[0];
+        });
+        while (true) {
+            if (nextXxx()) {
+                break;
+            }
+        }
+        return resultChildren;
+    }
+
+    function sortFunc(funcCov) {
+
+// This function will normalize-and-sort <funcCov>.ranges.
+// Sorts the ranges (pre-order sort).
+// TODO: Tree-based normalization of the ranges. //jslint-quiet
+// @param funcCov Function coverage to normalize.
+
+        funcCov.ranges = treeToRanges(treeFromSortedRanges(
+            funcCov.ranges.sort(compareRangeList)
+        ));
+        return funcCov;
+    }
+
+    function sortProcess(processCov) {
+
+// This function will sort <processCov>.result.
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+
+        Object.entries(processCov.result.sort(function (aa, bb) {
+            return (
+                aa.url < bb.url
+                ? -1
+                : aa.url > bb.url
+                ? 1
+                : 0
+            );
+        })).forEach(function ([
+            scriptId, scriptCov
+        ]) {
+            scriptCov.scriptId = scriptId.toString(10);
+        });
+        return processCov;
+    }
+
+    function sortScript(scriptCov) {
+
+// This function will normalize-and-sort <scriptCov>.functions.
+
+// Normalize-and-sort functions[xxx].ranges.
+
+        scriptCov.functions.forEach(function (funcCov) {
+            sortFunc(funcCov);
+        });
+
+// Sort functions by root range (pre-order sort).
+
+        scriptCov.functions.sort(function (aa, bb) {
+            return compareRangeList(aa.ranges[0], bb.ranges[0]);
+        });
+        return scriptCov;
+    }
+
+    function treeFromSortedRanges(ranges) {
+
+// @precondition `ranges` are well-formed and pre-order sorted
+
+        let root;
+        let stack = [];   // Stack of parent trees and parent counts.
+        ranges.forEach(function (range) {
+
+// new rangeTreeCreate().
+
+            let node = {
+                children: [],
+                delta: range.count,
+                end: range.endOffset,
+                start: range.startOffset
+            };
+            let parent;
+            let parentCount;
+            if (root === undefined) {
+                root = node;
+                stack.push([
+                    node, range.count
+                ]);
+                return;
+            }
+            while (true) {
+                [
+                    parent, parentCount
+                ] = stack[stack.length - 1];
+
+// assert: `top !== undefined` (the ranges are sorted)
+
+                if (range.startOffset < parent.end) {
+                    break;
+                }
+                stack.pop();
+            }
+            node.delta -= parentCount;
+            parent.children.push(node);
+            stack.push([
+                node, range.count
+            ]);
+        });
+        return root;
+    }
+
+    function treeToRanges(tree) {
+
+// Get the range coverages corresponding to the tree.
+// The ranges are pre-order sorted.
+
+        let count;
+        let cur;
+        let ii;
+        let parentCount;
+        let ranges = [];
+        let stack = [           // Stack of parent trees and counts.
+            [
+                tree, 0
+            ]
+        ];
+        function normalizeRange(tree) {
+
+// @internal
+
+            let children = [];
+            let curEnd;
+            let head;
+            let tail = [];
+            function endChain() {
+                if (tail.length !== 0) {
+                    head.end = tail[tail.length - 1].end;
+                    tail.forEach(function (tailTree) {
+                        tailTree.children.forEach(function (subChild) {
+                            subChild.delta += tailTree.delta - head.delta;
+                            head.children.push(subChild);
+                        });
+                    });
+                    tail.length = 0;
+                }
+
+// Recurse normalizeRange().
+
+                normalizeRange(head);
+                children.push(head);
+            }
+            tree.children.forEach(function (child) {
+                if (head === undefined) {
+                    head = child;
+                } else if (
+                    child.delta === head.delta && child.start === curEnd
+                ) {
+                    tail.push(child);
+                } else {
+                    endChain();
+                    head = child;
+                }
+                curEnd = child.end;
+            });
+            if (head !== undefined) {
+                endChain();
+            }
+            if (children.length === 1) {
+                if (
+                    children[0].start === tree.start
+                    && children[0].end === tree.end
+                ) {
+                    tree.delta += children[0].delta;
+                    tree.children = children[0].children;
+
+// `.lazyCount` is zero for both (both are after normalization)
+
+                    return;
+                }
+            }
+            tree.children = children;
+        }
+        normalizeRange(tree);
+        while (stack.length > 0) {
+            [
+                cur, parentCount
+            ] = stack.pop();
+            count = parentCount + cur.delta;
+            ranges.push({
+                count,
+                endOffset: cur.end,
+                startOffset: cur.start
+            });
+            ii = cur.children.length - 1;
+            while (ii >= 0) {
+                stack.push([
+                    cur.children[ii], count
+                ]);
+                ii -= 1;
+            }
+        }
+        return ranges;
+    }
+
+    if (processCovs.length === 0) {
+        return {
+            result: []
+        };
+    }
+    if (processCovs.length === 1) {
+
+// Normalize-and-sort scriptCov.
+
+        processCovs[0].result.forEach(function (scriptCov) {
+            sortScript(scriptCov);
+        });
+
+// Sort processCovs[0].result.
+
+        return sortProcess(processCovs[0]);
+    }
+
+// Init urlToScriptDict.
+
+    processCovs.forEach(function ({
+        result
+    }) {
+        result.forEach(function (scriptCov) {
+            dictKeyValueAppend(urlToScriptDict, scriptCov.url, scriptCov);
+        });
+    });
+    urlToScriptDict.forEach(function (scriptCovs) {
+
+// assert: `scriptCovs.length > 0`
+
+// function mergeScriptList(scriptCovs) {
+// Merges a list of matching script coverages.
+// Scripts are matching if they have the same `url`.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+// @param scriptCovs Process coverages to merge.
+// @return Merged script coverage, or `undefined` if the input list was empty.
+
+        let functions = [];
+
+// Map funcCovRoot.startOffset:funcCovRoot.endOffset to funcCov.
+
+        let rangeToFuncDict = new Map();
+
+// Probably deadcode.
+// if (scriptCovs.length === 0) {
+//     return undefined;
+// }
+
+        if (scriptCovs.length === 1) {
+            resultMerged.push(sortScript(scriptCovs[0]));
+            return;
+        }
+
+// Init rangeToFuncDict.
+// Map funcCovRoot.startOffset:funcCovRoot.endOffset to funcCov.
+
+        scriptCovs.forEach(function ({
+            functions
+        }) {
+            functions.forEach(function (funcCov) {
+                dictKeyValueAppend(
+                    rangeToFuncDict,
+
+// This string can be used to match function with same root range.
+// The string is derived from the start and end offsets of the root range of
+// the function.
+// This assumes that `ranges` is non-empty (true for valid function coverages).
+
+                    (
+                        funcCov.ranges[0].startOffset
+                        + ";" + funcCov.ranges[0].endOffset
+                    ),
+                    funcCov
+                );
+            });
+        });
+        rangeToFuncDict.forEach(function (funcCovs) {
+
+// assert: `funcCovs.length > 0`
+
+// function mergeFuncList(funcCovs) {
+// Merges a list of matching function coverages.
+// Functions are matching if their root ranges have the same span.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+// @param funcCovs Function coverages to merge.
+// @return Merged function coverage, or `undefined` if the input list was empty.
+
+            let count = 0;
+            let isBlockCoverage;
+            let merged;
+            let ranges;
+            let trees = [];
+
+// Probably deadcode.
+// if (funcCovs.length === 0) {
+//     return undefined;
+// }
+
+            if (funcCovs.length === 1) {
+                functions.push(sortFunc(funcCovs[0]));
+                return;
+            }
+
+// assert: `funcCovs[0].ranges.length > 0`
+
+            funcCovs.forEach(function (funcCov) {
+
+// assert: `funcCov.ranges.length > 0`
+// assert: `funcCov.ranges` is sorted
+
+                count += (
+                    funcCov.count !== undefined
+                    ? funcCov.count
+                    : funcCov.ranges[0].count
+                );
+                if (funcCov.isBlockCoverage) {
+                    trees.push(treeFromSortedRanges(funcCov.ranges));
+                }
+            });
+            if (trees.length > 0) {
+                isBlockCoverage = true;
+                ranges = treeToRanges(mergeTreeList(trees));
+            } else {
+                isBlockCoverage = false;
+                ranges = [
+                    {
+                        count,
+                        endOffset: funcCovs[0].ranges[0].endOffset,
+                        startOffset: funcCovs[0].ranges[0].startOffset
+                    }
+                ];
+            }
+            merged = {
+                functionName: funcCovs[0].functionName,
+                isBlockCoverage,
+                ranges
+            };
+            if (count !== ranges[0].count) {
+                merged.count = count;
+            }
+
+// assert: `merged` is normalized
+
+            functions.push(merged);
+        });
+        resultMerged.push(sortScript({
+            functions,
+            scriptId: scriptCovs[0].scriptId,
+            url: scriptCovs[0].url
+        }));
+    });
+    return sortProcess({
+        result: resultMerged
+    });
+}
+
+async function v8CoverageReportCreate({
+    consoleError,
+    coverageDir,
+    processArgv = []
+}) {
+
+// This function will create html-coverage-reports directly from
+// v8-coverage-files in <coverageDir>.
+// 1. Spawn node.js program <processArgv> with NODE_V8_COVERAGE.
+// 2. Merge JSON v8-coverage-files in <coverageDir>.
+// 3. Create html-coverage-reports in <coverageDir>.
+
+    let cwd;
+    let exitCode = 0;
+    let fileDict;
+    let promiseList = [];
+    let v8CoverageObj;
+
+    function htmlRender({
+        fileList,
+        lineList,
+        modeIndex,
+        pathname
+    }) {
+        let html;
+        let padLines;
+        let padPathname;
+        let txt;
+        let txtBorder;
+        html = "";
+        html += String(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>V8 Coverage Report</title>
+<style>
+/* jslint utility2:true */
+/*csslint ignore:start*/
+* {
+box-sizing: border-box;
+    font-family: consolas, menlo, monospace;
+}
+/*csslint ignore:end*/
+body {
+    margin: 0;
+}
+.coverage pre {
+    margin: 5px 0;
+}
+.coverage table {
+    border-collapse: collapse;
+}
+.coverage td,
+.coverage th {
+    border: 1px solid #777;
+    margin: 0;
+    padding: 5px;
+}
+.coverage td span {
+    display: inline-block;
+    width: 100%;
+}
+.coverage .content {
+    padding: 0 5px;
+}
+.coverage .content a {
+    text-decoration: none;
+}
+.coverage .count {
+    margin: 0 5px;
+    padding: 0 5px;
+}
+.coverage .footer,
+.coverage .header {
+    padding: 20px;
+}
+.coverage .footer {
+    text-align: center;
+}
+.coverage .percentbar {
+    height: 12px;
+    margin: 2px 0;
+    min-width: 200px;
+    position: relative;
+    width: 100%;
+}
+.coverage .percentbar div {
+    height: 100%;
+    position: absolute;
+}
+.coverage .title {
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.coverage td,
+.coverage th {
+    background: #fff;
+}
+.coverage .count {
+    background: #9d9;
+    color: #777;
+}
+.coverage .coverageHigh{
+    background: #9d9;
+}
+.coverage .coverageIgnore{
+    background: #ccc;
+}
+.coverage .coverageLow{
+    background: #ebb;
+}
+.coverage .coverageMedium{
+    background: #fd7;
+}
+.coverage .footer,
+.coverage .header {
+    background: #ddd;
+}
+.coverage .lineno {
+    background: #ddd;
+}
+.coverage .percentbar {
+    background: #999;
+}
+.coverage .percentbar div {
+    background: #666;
+}
+.coverage .uncovered {
+    background: #dbb;
+}
+
+.coverage pre:hover span,
+.coverage tr:hover td {
+    background: #7d7;
+}
+.coverage pre:hover span.uncovered,
+.coverage tr:hover td.coverageLow {
+    background: #d99;
+}
+</style>
+</head>
+<body class="coverage">
+<!-- header start -->
+<div class="header">
+<div class="title">V8 Coverage Report</div>
+<table>
+<thead>
+    <tr>
+    <th>Files covered</th>
+    <th>Lines</th>
+    </tr>
+</thead>
+<tbody>
+        `).trim() + "\n";
+        if (modeIndex) {
+            padLines = String("(ignore) 100.00 %").length;
+            padPathname = 32;
+            fileList.unshift({
+                linesCovered: 0,
+                linesTotal: 0,
+                modeCoverageIgnoreFile: "",
+                pathname: "./"
+            });
+            fileList.slice(1).forEach(function ({
+                linesCovered,
+                linesTotal,
+                modeCoverageIgnoreFile,
+                pathname
+            }) {
+                if (!modeCoverageIgnoreFile) {
+                    fileList[0].linesCovered += linesCovered;
+                    fileList[0].linesTotal += linesTotal;
+                }
+                padPathname = Math.max(padPathname, pathname.length + 2);
+                padLines = Math.max(
+                    padLines,
+                    String(linesCovered + " / " + linesTotal).length
+                );
+            });
+        }
+        txtBorder = (
+            "+" + "-".repeat(padPathname + 2) + "+"
+            + "-".repeat(padLines + 2) + "+\n"
+        );
+        txt = "";
+        txt += "V8 Coverage Report\n";
+        txt += txtBorder;
+        txt += (
+            "| " + String("Files covered").padEnd(padPathname, " ") + " | "
+            + String("Lines").padStart(padLines, " ") + " |\n"
+        );
+        txt += txtBorder;
+        fileList.forEach(function ({
+            linesCovered,
+            linesTotal,
+            modeCoverageIgnoreFile,
+            pathname
+        }, ii) {
+            let coverageLevel;
+            let coveragePct;
+            let fill;
+            let str1;
+            let str2;
+            let xx1;
+            let xx2;
+            coveragePct = Math.floor(10000 * linesCovered / linesTotal || 0);
+            coverageLevel = (
+                modeCoverageIgnoreFile
+                ? "coverageIgnore"
+                : coveragePct >= 8000
+                ? "coverageHigh"
+                : coveragePct >= 5000
+                ? "coverageMedium"
+                : "coverageLow"
+            );
+            coveragePct = String(coveragePct).replace((
+                /..$/m
+            ), ".$&");
+            if (modeIndex && ii === 0) {
+                fill = (
+
+// Badge-color rgb-red.
+
+                    "#" + Math.round(
+                        (100 - Number(coveragePct)) * 2.21
+                    ).toString(16).padStart(2, "0")
+
+// Badge-color rgb-green.
+
+                    + Math.round(
+                        Number(coveragePct) * 2.21
+                    ).toString(16).padStart(2, "0")
+
+// Badge-color rgb-blue.
+
+                    + "00"
+                );
+                str1 = "coverage";
+                str2 = coveragePct + " %";
+                xx1 = 6 * str1.length + 20;
+                xx2 = 6 * str2.length + 20;
+
+// Fs - write coverage_badge.svg
+
+                promiseList.push(fsWriteFileWithParents((
+                    coverageDir + "coverage_badge.svg"
+                ), String(`
+<svg height="20" width="${xx1 + xx2}" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#555" height="20" width="${xx1 + xx2}"/>
+<rect fill="${fill}" height="20" width="${xx2}" x="${xx1}"/>
+<g
+    fill="#fff"
+    font-family="dejavu sans, verdana, geneva, sans-serif"
+    font-size="11"
+    font-weight="bold"
+    text-anchor="middle"
+>
+<text x="${0.5 * xx1}" y="14">${str1}</text>
+<text x="${xx1 + 0.5 * xx2}" y="14">${str2}</text>
+</g>
+</svg>
+                `).trim() + "\n"));
+                pathname = "";
+            }
+            txt += (
+                "| "
+                + String("./" + pathname).padEnd(padPathname, " ") + " | "
+                + String(
+                    modeCoverageIgnoreFile + " " + coveragePct + " %"
+                ).padStart(padLines, " ") + " |\n"
+            );
+            txt += (
+                "| " + "*".repeat(
+                    Math.round(0.01 * coveragePct * padPathname)
+                ).padEnd(padPathname, "_") + " | "
+                + String(
+                    linesCovered + " / " + linesTotal
+                ).padStart(padLines, " ") + " |\n"
+            );
+            txt += txtBorder;
+            pathname = htmlEscape(pathname);
+
+// CL-37251d17 - Bugfix - Fix incorrect http-link to index.html.
+
+            html += String(`
+    <tr>
+    <td class="${coverageLevel}">
+            ${(
+                modeIndex
+                ? (
+                    "<a href=\"" + (pathname || "index") + ".html\">. / "
+                    + pathname + "</a><br>"
+                )
+                : (
+                    "<a href=\""
+                    + "../".repeat(pathname.split("/").length - 1)
+                    + "index.html\">. / </a>"
+                    + pathname + "<br>"
+                )
+            )}
+        <div class="percentbar">
+            <div style="width: ${coveragePct}%;"></div>
+        </div>
+    </td>
+    <td style="text-align: right;">
+        ${modeCoverageIgnoreFile} ${coveragePct} %<br>
+        ${linesCovered} / ${linesTotal}
+    </td>
+    </tr>
+        `).trim() + "\n";
+        });
+        html += String(`
+</tbody>
+</table>
+</div>
+<!-- header end -->
+        `).trim() + "\n";
+        if (!modeIndex) {
+            html += String(`
+<!-- content start -->
+<div class="content">
+            `).trim() + "\n";
+            lineList.forEach(function ({
+                count,
+                holeList,
+                line,
+                startOffset
+            }, ii) {
+                let chunk;
+                let inHole;
+                let lineHtml;
+                let lineId;
+                lineHtml = "";
+                lineId = "line_" + (ii + 1);
+                switch (count) {
+
+// PR-364 - Probably deadcode.
+// case -1:
+
+                case 0:
+                    if (holeList.length === 0) {
+                        lineHtml += "</span>";
+                        lineHtml += "<span class=\"uncovered\">";
+                        lineHtml += htmlEscape(line);
+                        break;
+                    }
+                    line = line.split("").map(function (char) {
+                        return {
+                            char,
+                            isHole: undefined
+                        };
+                    });
+                    holeList.forEach(function ([
+                        aa, bb
+                    ]) {
+                        aa = Math.max(aa - startOffset, 0);
+                        bb = Math.min(bb - startOffset, line.length);
+                        while (aa < bb) {
+                            line[aa].isHole = true;
+                            aa += 1;
+                        }
+                    });
+                    chunk = "";
+                    line.forEach(function ({
+                        char,
+                        isHole
+                    }) {
+                        if (inHole !== isHole) {
+                            lineHtml += htmlEscape(chunk);
+                            lineHtml += (
+                                isHole
+                                ? "</span><span class=\"uncovered\">"
+                                : "</span><span>"
+                            );
+                            chunk = "";
+                            inHole = isHole;
+                        }
+                        chunk += char;
+                    });
+                    lineHtml += htmlEscape(chunk);
+                    break;
+                default:
+                    lineHtml += htmlEscape(line);
+                }
+                html += String(`
+<pre>
+<span class="lineno">
+<a href="#${lineId}" id="${lineId}">${String(ii + 1).padStart(5, " ")}.</a>
+</span>
+<span class="count
+                ${(
+                    count <= 0
+                    ? "uncovered"
+                    : ""
+                )}"
+>
+${String(count).padStart(7, " ")}
+</span>
+<span>${lineHtml}</span>
+</pre>
+                `).replace((
+                    /\n/g
+                ), "").trim() + "\n";
+            });
+            html += String(`
+</div>
+<!-- content end -->
+            `).trim() + "\n";
+        }
+        html += String(`
+<div class="footer">
+    [
+    This document was created with
+    <a href="https://github.com/jslint-org/jslint">JSLint</a>
+    ]
+</div>
+</body>
+</html>
+        `).trim() + "\n";
+
+// Fs - write <file>.html
+
+        promiseList.push(fsWriteFileWithParents(pathname + ".html", html));
+        if (!modeIndex) {
+            return;
+        }
+
+// Fs - write coverage_report.txt
+
+        consoleError("\n" + txt);
+        promiseList.push(fsWriteFileWithParents((
+            coverageDir + "coverage_report.txt"
+        ), txt));
+    }
+
+    function pathnameRelativeCwd(pathname) {
+
+// This function will if <pathname> is inside <cwd>,
+// return it relative to <cwd>, else empty-string.
+
+        pathname = modulePath.resolve(pathname).replace((
+            /\\/g
+        ), "/");
+        if (!pathname.startsWith(cwd)) {
+            return;
+        }
+        pathname = pathname.slice(cwd.length);
+        return pathname;
+    }
+
+/*
+function sentinel() {}
+*/
+
+    await moduleFsInit();
+    consoleError = consoleError || console.error;
+    cwd = process.cwd().replace((
+        /\\/g
+    ), "/") + "/";
+
+// Init coverageDir.
+// Assert coverageDir is subdirectory of cwd.
+
+    assertOrThrow(coverageDir, "invalid coverageDir " + coverageDir);
+
+// CL-xxx - coverage - Relax requirement for coverageDir to be in cwd.
+//     assertOrThrow(
+//         pathnameRelativeCwd(coverageDir),
+//         "coverageDir " + coverageDir + " is not subdirectory of cwd " + cwd
+//     );
+
+    coverageDir = modulePath.resolve(coverageDir).replace((
+        /\\/g
+    ), "/") + "/";
+
+// 1. Spawn node.js program <processArgv> with coverage
+
+    if (processArgv.length > 0) {
+
+// Remove old coverage-files.
+
+        await fsWriteFileWithParents(coverageDir + "/touch.txt", "");
+        await Promise.all(Array.from(
+            await moduleFs.promises.readdir(coverageDir)
+        ).map(async function (file) {
+            if ((
+                /^coverage-\d+?-\d+?-\d+?\.json$/
+            ).test(file)) {
+                console.error("rm file " + coverageDir + file);
+                await moduleFs.promises.unlink(coverageDir + file);
+            }
+        }));
+        exitCode = await new Promise(function (resolve) {
+            moduleChildProcess.spawn((
+                processArgv[0] === "npm"
+
+// If win32 environment, then replace program npm with npm.cmd.
+// Coverage-hack - Ugly hack to get test-coverage under both win32 and linux.
+
+                ? process.platform.replace("win32", "npm.cmd").replace(
+                    process.platform,
+                    "npm"
+                )
+                : processArgv[0]
+            ), processArgv.slice(1), {
+                env: Object.assign({}, process.env, {
+                    NODE_V8_COVERAGE: coverageDir
+                }),
+                stdio: [
+                    "ignore", 1, 2
+                ]
+            }).on("exit", resolve);
+        });
+    }
+
+// 2. Merge JSON v8-coverage-files in <coverageDir>.
+
+    v8CoverageObj = await moduleFs.promises.readdir(coverageDir);
+    v8CoverageObj = v8CoverageObj.filter(function (file) {
+        return (
+            /^coverage-\d+?-\d+?-\d+?\.json$/
+        ).test(file);
+    });
+    v8CoverageObj = await Promise.all(v8CoverageObj.map(async function (file) {
+        let data = await moduleFs.promises.readFile(coverageDir + file, "utf8");
+        data = JSON.parse(data);
+        data.result = data.result.filter(function (scriptCov) {
+            let pathname = scriptCov.url;
+
+// Filter out internal coverages.
+
+            if (!pathname.startsWith("file:///")) {
+                return;
+            }
+
+// Normalize pathname.
+
+            pathname = pathnameRelativeCwd(moduleUrl.fileURLToPath(pathname));
+            if (
+
+// Filter files outside of cwd.
+
+                !pathname
+                || pathname.startsWith("[")
+
+// Filter directory node_modules.
+
+                || (
+                    process.env.npm_config_mode_coverage !== "all"
+                    && (
+                        /(?:^|\/)node_modules\//m
+                    ).test(pathname)
+                )
+            ) {
+                return;
+            }
+            scriptCov.url = pathname;
+            return true;
+        });
+        return data;
+    }));
+
+// Merge v8CoverageObj.
+
+    v8CoverageObj = v8CoverageListMerge(v8CoverageObj);
+
+// debug v8CoverageObj.
+
+    await fsWriteFileWithParents(
+        coverageDir + "v8_coverage_merged.json",
+        JSON.stringify(v8CoverageObj)
+    );
+
+// 3. Create html-coverage-reports in <coverageDir>.
+
+    fileDict = {};
+    await Promise.all(v8CoverageObj.result.map(async function ({
+        functions,
+        url: pathname
+    }) {
+        let lineList;
+        let linesCovered;
+        let linesTotal;
+        let source;
+        source = await moduleFs.promises.readFile(pathname, "utf8");
+        lineList = [{}];
+        source.replace((
+            /^.*$/gm
+        ), function (line, startOffset) {
+            lineList[lineList.length - 1].endOffset = startOffset - 1;
+            lineList.push({
+                count: -1,
+                endOffset: 0,
+                holeList: [],
+                line,
+                startOffset
+            });
+            return "";
+        });
+        lineList.shift();
+        lineList[lineList.length - 1].endOffset = source.length;
+        functions.reverse().forEach(function ({
+            ranges
+        }) {
+            ranges.reverse().forEach(function ({
+                count,
+                endOffset,
+                startOffset
+            }, ii, list) {
+                lineList.forEach(function (elem) {
+                    if (!(
+                        (
+                            elem.startOffset <= startOffset
+                            && startOffset <= elem.endOffset
+                        ) || (
+                            elem.startOffset <= endOffset
+                            && endOffset <= elem.endOffset
+                        ) || (
+                            startOffset <= elem.startOffset
+                            && elem.endOffset <= endOffset
+                        )
+                    )) {
+                        return;
+                    }
+
+// Handle tree-root.
+
+                    if (ii + 1 === list.length) {
+                        if (elem.count === -1) {
+                            elem.count = count;
+                        }
+                        return;
+                    }
+
+// Handle tree-children.
+
+                    if (elem.count !== 0) {
+                        elem.count = Math.max(count, elem.count);
+                    }
+                    if (count === 0) {
+                        elem.count = 0;
+                        elem.holeList.push([
+                            startOffset, endOffset
+                        ]);
+                    }
+                });
+            });
+        });
+        linesTotal = lineList.length;
+        linesCovered = lineList.filter(function ({
+            count
+        }) {
+            return count > 0;
+        }).length;
+        await moduleFs.promises.mkdir((
+            modulePath.dirname(coverageDir + pathname)
+        ), {
+            recursive: true
+        });
+        fileDict[pathname] = {
+            lineList,
+            linesCovered,
+            linesTotal,
+            modeCoverageIgnoreFile: (
+                (
+                    /^\/\*mode-coverage-ignore-file\*\/$/m
+                ).test(source.slice(0, 65536))
+                ? "(ignore)"
+                : ""
+            ),
+            pathname
+        };
+        htmlRender({
+            fileList: [
+                fileDict[pathname]
+            ],
+            lineList,
+            pathname: coverageDir + pathname
+        });
+    }));
+    htmlRender({
+        fileList: Object.keys(fileDict).sort().map(function (pathname) {
+            return fileDict[pathname];
+        }),
+        modeIndex: true,
+        pathname: coverageDir + "index"
+    });
+    await Promise.all(promiseList);
+    assertOrThrow(
+        exitCode === 0,
+        "v8CoverageReportCreate - nonzero exitCode " + exitCode
+    );
+}
+
+/*
+function sentinel() {}
+*/
+
+// Export jslint as cjs/esm.
 
 jslint_export = Object.freeze(Object.assign(jslint, {
-    cli: Object.freeze(jslint_cli),
-    edition: jslint_edition,
-    jslint: Object.freeze(jslint.bind(undefined))
+    assertErrorThrownAsync,
+    assertJsonEqual,
+    assertOrThrow,
+    debugInline,
+    fsRmRecursive,
+    fsWriteFileWithParents,
+    htmlEscape,
+    jslint,
+    jslint_apidoc,
+    jslint_assert,
+    jslint_charset_ascii,
+    jslint_cli,
+    jslint_edition,
+    jslint_phase1_split,
+    jslint_phase2_lex,
+    jslint_phase3_parse,
+    jslint_phase4_walk,
+    jslint_phase5_whitage,
+    jslint_report,
+    jstestDescribe,
+    jstestIt,
+    jstestOnExit,
+    moduleFsInit,
+    noop,
+    v8CoverageListMerge,
+    v8CoverageReportCreate
 }));
-// module.exports = jslint_export;
-export default Object.freeze(jslint_export);
+// module.exports = jslint_export;              // Export jslint as cjs.
+export default Object.freeze(jslint_export);    // Export jslint as esm.
 jslint_import_meta_url = import.meta.url;
 
 // Run jslint_cli.
@@ -8300,4 +10929,4 @@ jslint_import_meta_url = import.meta.url;
 }());
 
 // Coverage-hack.
-noop(jslint_charset_ascii);
+debugInline();

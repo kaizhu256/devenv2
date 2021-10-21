@@ -92,7 +92,8 @@ function! MyStringifyRegion(...)
 "" this function will js-stringify-add selected-region
     "" un-stringify
     if a:1 == 'u'
-        '<,'>s/^\s*\(+ "\|"\)\(.*\)\(" +\|"\)$/\2/e
+        ""!! '<,'>s/^\s*\(+ "\|"\)\(.*\)\(" +\|"\)$/\2/e
+        '<,'>s/^\s*\(+ \|\w\w* += \)\?"\(.*\)"\( +\|;\)\?$/\2/e
         '<,'>s/\\n\\*$//e
         '<,'>s/\\\(["'\\]\)/\1/eg
     "" stringify + "..."
@@ -235,100 +236,79 @@ endif
 "" this function will cpplint file of current buffer
 "" before using, please save cpplint.py to ~/.vim/cpplint.py, e.g.:
 "" curl -L https://raw.githubusercontent.com/cpplint/cpplint/1.5.5/cpplint.py > ~/.vim/cpplint.py
-function! s:CpplintFileAfterSave(bang)
-    if a:bang == "!"
-        write!
-    else
-        write
+function! SaveAndCpplint(bang)
+    "" save file
+    if a:bang == "!" | write! | else | write | endif
+    let l:file = " \"" . fnamemodify(bufname("%"), ":p") . "\" "
+    "" indent file
+    if &filetype == "c" && (
+        \ filereadable(expand("~/.vim/indent"))
+        \ || filereadable(expand("~/.vim/indent.exe"))
+    \)
+        let l:tmp = ""
+            \ . " \"" . $HOME . "/.vim/indent\""
+            \ . " --blank-lines-after-commas"
+            \ . " --braces-on-func-def-line"
+            \ . " --break-function-decl-args"
+            \ . " --break-function-decl-args-end"
+            \ . " --dont-line-up-parentheses"
+            \ . " --k-and-r-style"
+            \ . " --line-length78"
+            \ . " --no-tabs"
+            \ . " -bfde"
+            \ . l:file
+        "" debug tmp
+        "" echo l:tmp
+        let l:tmp = system(l:tmp)
+        "" reload file, remove carriage-return, resave
+        edit
+        set ff=unix
+        "" save file
+        if a:bang == "!"
+            write!
+        else
+            write
+        endif
     endif
-    let &l:makeprg = "python"
-        \ . " \"" . $home . "/.vim/cpplint.py\""
-        \ . " \"" . fnamemodify(bufname("%"), ":p") . "\""
-    let &l:errorformat = "%a%f:%l:  %m [%t],%-g%.%#"
+    "" cpplint file
+    let &l:errorformat = '%f:%l:  %m [%t]'
+    "" let &l:errorformat = "%a%f:%l:  %m [%t],%-g%.%#"
+    let &l:makeprg = "python \"" . $HOME . "/.vim/cpplint.py\"" . l:file
     silent make!
     cwindow
     redraw!
 endfunction
 
-"" init command :CpplintFileAfterSave
-command! -nargs=* -bang CpplintFileAfterSave call s:CpplintFileAfterSave("<bang>")
+"" create vim-command ":SaveAndCpplint"
+command! -nargs=* -bang SaveAndCpplint call SaveAndCpplint("<bang>")
 
 source ~/.vim/jslint.vim
 
-"" init command :MySaveAndLint
-command! -nargs=* -bang MySaveAndLint call MySaveAndLint("<bang>")
 "" this function will jslint the file of current buffer after saving it.
 "" before using, please save jslint.mjs to ~/.vim/jslint.mjs, e.g.:
 "" curl -L https://www.jslint.com/jslint.mjs > ~/.vim/jslint.mjs
 function! MySaveAndLint(bang)
+    "" cpplint file
+    if &filetype == "c" || &filetype == "cpp"
+        SaveAndCpplint
+        return
+    endif
+    "" jslint file
+    if &filetype == "javascript" && filereadable(expand("~/.vim/jslint.vim"))
+        SaveAndJslint
+        return
+    endif
     "" save file
     if a:bang == "!"
         write!
     else
         write
     endif
-    "" init variables errorformat, makeprg
-    let &l:errorformat = ""
-    let &l:makeprg = ""
-    let l:tmp = ""
-    let l:file0 = fnamemodify(bufname("%"), ":p")
-    let l:file = " \"" . fnamemodify(bufname("%"), ":p") . "\" "
-    "" curl -L https://raw.githubusercontent.com/cpplint/cpplint/1.5.5/cpplint.py > ~/.vim/cpplint.py
-    if &filetype == "c" || &filetype == "cpp"
-        \ && filereadable(expand("~/.vim/cpplint.py"))
-        "" indent file
-        if &filetype == "c" && (
-            \ filereadable(expand("~/.vim/indent"))
-            \ || filereadable(expand("~/.vim/indent.exe"))
-        \)
-            let l:tmp = ""
-                \ . " \"" . $HOME . "/.vim/indent\""
-                \ . " --blank-lines-after-commas"
-                \ . " --braces-on-func-def-line"
-                \ . " --break-function-decl-args"
-                \ . " --break-function-decl-args-end"
-                \ . " --dont-line-up-parentheses"
-                \ . " --k-and-r-style"
-                \ . " --line-length78"
-                \ . " --no-tabs"
-                \ . " -bfde"
-                \ . l:file
-            "" debug tmp
-            "" echo l:tmp
-            let l:tmp = system(l:tmp)
-            "" reload file, remove carriage-return, resave
-            edit
-            set ff=unix
-            "" save file
-            if a:bang == "!"
-                write!
-            else
-                write
-            endif
-        endif
-        "" cpplint file
-        let &l:errorformat = '%f:%l:  %m [%t]'
-        let &l:makeprg = ""
-            \ . " python"
-            \ . " \"" . $HOME . "/.vim/cpplint.py\""
-            \ . l:file
-    elseif &filetype == "javascript"
-        "" jslint file
-        if filereadable(expand("~/.vim/jslint.vim"))
-            SaveAndJslint
-        endif
-        return
-    else
-        return
-    endif
-    "" debug makeprg
-    "" echo &l:makeprg
-    "" lint file
-    silent make!
-    cwindow
-    redraw!
 endfunction
 
+"" init command :MySaveAndLint
+command! -nargs=* -bang MySaveAndLint call MySaveAndLint("<bang>")
+
+"" map vim-key-combo "<ctrl-s> <ctrl-j>" to ":MySaveAndLint"
 inoremap <c-s><c-l> <esc> :MySaveAndLint <cr>
-nnoremap <c-s><c-l> <esc> :MySaveAndLint <cr>
-vnoremap <c-s><c-l> <esc> :MySaveAndLint <cr>
+nnoremap <c-s><c-l> :MySaveAndLint <cr>

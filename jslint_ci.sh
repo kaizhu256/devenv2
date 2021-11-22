@@ -5,7 +5,7 @@
 # http://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
 
 # sh one-liner
-#
+# git add .; npm run test2; git checkout .
 # git branch -d -r origin/aa
 # git config --global diff.algorithm histogram
 # git fetch origin alpha beta master && git fetch upstream alpha beta master
@@ -142,7 +142,7 @@ shBashrcDebianInit() {
 shBrowserScreenshot() {(set -e
 # this function will run headless-chrome to screenshot url $1 with
 # window-size $2
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleChildProcess from "child_process";
 import modulePath from "path";
 import moduleUrl from "url";
@@ -235,7 +235,7 @@ shCiArtifactUpload() {(set -e
 # this function will upload build-artifacts to branch-gh-pages
     local BRANCH
     local FILE
-    node --input-type=module -e '
+    node --input-type=module --eval '
 process.exit(Number(
     `${process.version.split(".")[0]}.${process.arch}.${process.platform}`
     !== process.env.CI_NODE_VERSION_ARCH_PLATFORM
@@ -252,7 +252,7 @@ process.exit(Number(
     # init $UPSTREAM_REPO
     export UPSTREAM_REPO="${UPSTREAM_REPO:-jslint}"
     # screenshot changelog and files
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleChildProcess from "child_process";
 (function () {
     [
@@ -369,7 +369,7 @@ shCiArtifactUploadCustom() {(set -e
 shCiBase() {(set -e
 # this function will run base-ci
     # update table-of-contents in README.md
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
 (async function () {
     let data = await moduleFs.promises.readFile("README.md", "utf8");
@@ -379,8 +379,9 @@ import moduleFs from "fs";
         let ii = -1;
         let toc = "\n# Table of Contents\n";
         data.replace((
-            /(\n\n\n#|\n###) (.*)/g
-        ), function (ignore, level, title) {
+            // /(\n{3,}#|\n+?<br><br>\n#|\n+?###) (\S.*)/g
+            /((?:\n{3,}|\n+?(?:<br>)+?\n)(?:#|###)) (\S.*)/g
+        ), function (match0, level, title) {
             if (title === "Table of Contents") {
                 ii += 1;
                 return "";
@@ -388,14 +389,16 @@ import moduleFs from "fs";
             if (ii < 0) {
                 return "";
             }
-            switch (level.trim()) {
-            case "#":
+            switch (level) {
+            case "\n\n\n<br><br>\n#":
                 ii += 1;
                 toc += "\n" + ii + ". [" + title + "](#";
                 break;
-            case "###":
+            case "\n\n\n<br><br>\n###":
                 toc += "    - [" + title + "](#";
                 break;
+            default:
+                throw new Error(JSON.stringify(match0));
             }
             toc += title.toLowerCase().replace((
                 /[^ \-0-9A-Z_a-z]/g
@@ -435,7 +438,7 @@ shCiBranchPromote() {(set -e
 
 shDirHttplinkValidate() {(set -e
 # this function will validate http-links embedded in .html and .md files
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
 import moduleHttps from "https";
 import moduleUrl from "url";
@@ -593,7 +596,7 @@ shGitLsTree() {(set -e
 # example use:
 # shGitLsTree | sort -rk3 # sort by date
 # shGitLsTree | sort -rk4 # sort by size
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleChildProcess from "child_process";
 (async function () {
     let result;
@@ -715,7 +718,7 @@ vendor)s{0,1}(\\b|_)\
 
 shGrepReplace() {(set -e
 # this function will inline grep-and-replace /tmp/shGrep.txt
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
 import moduleOs from "os";
 import modulePath from "path";
@@ -770,7 +773,7 @@ shHttpFileServer() {(set -e
         done
         return
     fi
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleChildProcess from "child_process";
 import moduleFs from "fs";
 import moduleHttp from "http";
@@ -1105,7 +1108,7 @@ div {
 
 shImageToDataUri() {(set -e
 # this function will convert image $1 to data-uri string
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
 import moduleHttps from "https";
 (async function () {
@@ -1146,40 +1149,40 @@ shJsonNormalize() {(set -e
 # 1. read json-data from file $1
 # 2. normalize json-data
 # 3. write normalized json-data back to file $1
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
+function noop(val) {
+
+// This function will do nothing except return <val>.
+
+    return val;
+}
+function objectDeepCopyWithKeysSorted(obj) {
+
+// This function will recursively deep-copy <obj> with keys sorted.
+
+    let sorted;
+    if (typeof obj !== "object" || !obj) {
+        return obj;
+    }
+
+// Recursively deep-copy list with child-keys sorted.
+
+    if (Array.isArray(obj)) {
+        return obj.map(objectDeepCopyWithKeysSorted);
+    }
+
+// Recursively deep-copy obj with keys sorted.
+
+    sorted = {};
+    Object.keys(obj).sort().forEach(function (key) {
+        sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
+    });
+    return sorted;
+}
 (async function () {
-    function noop(val) {
-
-// this function will do nothing except return <val>
-
-        return val;
-    }
-    function objectDeepCopyWithKeysSorted(obj) {
-
-// this function will recursively deep-copy <obj> with keys sorted
-
-        let sorted;
-        if (typeof obj !== "object" || !obj) {
-            return obj;
-        }
-
-// recursively deep-copy list with child-keys sorted
-
-        if (Array.isArray(obj)) {
-            return obj.map(objectDeepCopyWithKeysSorted);
-        }
-
-// recursively deep-copy obj with keys sorted
-
-        sorted = {};
-        Object.keys(obj).sort().forEach(function (key) {
-            sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
-        });
-        return sorted;
-    }
     console.error("shJsonNormalize - " + process.argv[1]);
-    moduleFs.promises.writeFile(
+    await moduleFs.promises.writeFile(
         process.argv[1],
         JSON.stringify(
             objectDeepCopyWithKeysSorted(
@@ -1195,7 +1198,7 @@ import moduleFs from "fs";
                 )
             ),
             undefined,
-            4
+            Number(process.argv[2]) || 4
         ) + "\n"
     );
 }());
@@ -1214,7 +1217,7 @@ shNpmPublishV0() {(set -e
 
 shRawLibFetch() {(set -e
 # this function will fetch raw-lib from $1
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleChildProcess from "child_process";
 import moduleFs from "fs";
 import moduleHttps from "https";
@@ -1507,7 +1510,7 @@ shRmDsStore() {(set -e
 shRunWithCoverage() {(set -e
 # this function will run nodejs command $@ with v8-coverage
 # and create coverage-report .artifact/coverage/index.html
-    node --input-type=module -e '
+    node --input-type=module --eval '
 /*jslint indent2*/
 let moduleChildProcess;
 let moduleFs;
@@ -1766,23 +1769,6 @@ function v8CoverageListMerge(processCovs) {
     return funcCov;
   }
 
-  function sortProcess(processCov) {
-    Object.entries(processCov.result.sort(function (aa, bb) {
-      return (
-        aa.url < bb.url
-        ? -1
-        : aa.url > bb.url
-        ? 1
-        : 0
-      );
-    })).forEach(function ([
-      scriptId, scriptCov
-    ]) {
-      scriptCov.scriptId = scriptId.toString(10);
-    });
-    return processCov;
-  }
-
   function sortScript(scriptCov) {
 
     scriptCov.functions.forEach(function (funcCov) {
@@ -1916,12 +1902,6 @@ function v8CoverageListMerge(processCovs) {
       result: []
     };
   }
-  if (processCovs.length === 1) {
-    processCovs[0].result.forEach(function (scriptCov) {
-      sortScript(scriptCov);
-    });
-    return sortProcess(processCovs[0]);
-  }
   processCovs.forEach(function ({
     result
   }) {
@@ -2001,9 +1981,20 @@ function v8CoverageListMerge(processCovs) {
       url: scriptCovs[0].url
     }));
   });
-  return sortProcess({
-    result: resultMerged
+  Object.entries(resultMerged.sort(function (aa, bb) {
+    return (
+      aa.url > bb.url
+      ? 1
+      : -1
+    );
+  })).forEach(function ([
+    scriptId, scriptCov
+  ]) {
+    scriptCov.scriptId = scriptId.toString(10);
   });
+  return {
+    result: resultMerged
+  };
 }
 async function v8CoverageReportCreate({
   consoleError,
@@ -2013,6 +2004,10 @@ async function v8CoverageReportCreate({
   let cwd;
   let exitCode = 0;
   let fileDict;
+  let fileExcludeList = [];
+  let fileIncludeList = [];
+  let fileIncludeNodeModules;
+  let processArgElem;
   let promiseList = [];
   let v8CoverageObj;
 
@@ -2041,6 +2036,8 @@ box-sizing: border-box;
   font-family: consolas, menlo, monospace;
 }
 /*csslint ignore:end*/
+
+/* css - coverage_report - general */
 body {
   margin: 0;
 }
@@ -2053,8 +2050,9 @@ body {
 .coverage td,
 .coverage th {
   border: 1px solid #777;
+  line-height: 20px;
   margin: 0;
-  padding: 5px;
+  padding: 5px 10px;
 }
 .coverage td span {
   display: inline-block;
@@ -2094,30 +2092,30 @@ body {
   margin-bottom: 10px;
 }
 
+/* css - coverage_report - color */
 .coverage td,
 .coverage th {
   background: #fff;
 }
+.coverage .count,
+.coverage .coverageHigh {
+  background: #9d9;
+}
 .coverage .count {
-  background: #9d9;
-  color: #777;
+  color: #666;
 }
-.coverage .coverageHigh{
-  background: #9d9;
-}
-.coverage .coverageIgnore{
+.coverage .coverageIgnore {
   background: #ccc;
 }
-.coverage .coverageLow{
+.coverage .coverageLow,
+.coverage .uncovered {
   background: #ebb;
 }
-.coverage .coverageMedium{
+.coverage .coverageMedium {
   background: #fd7;
 }
 .coverage .footer,
-.coverage .header {
-  background: #ddd;
-}
+.coverage .header,
 .coverage .lineno {
   background: #ddd;
 }
@@ -2127,17 +2125,15 @@ body {
 .coverage .percentbar div {
   background: #666;
 }
-.coverage .uncovered {
-  background: #dbb;
-}
 
+/* css - coverage_report - important */
 .coverage pre:hover span,
 .coverage tr:hover td {
   background: #7d7;
 }
 .coverage pre:hover span.uncovered,
 .coverage tr:hover td.coverageLow {
-  background: #d99;
+  background: #f99;
 }
 </style>
 </head>
@@ -2150,6 +2146,7 @@ body {
   <tr>
   <th>Files covered</th>
   <th>Lines</th>
+  <th>Remaining</th>
   </tr>
 </thead>
 <tbody>
@@ -2240,7 +2237,7 @@ body {
 <rect fill="${fill}" height="20" width="${xx2}" x="${xx1}"/>
 <g
   fill="#fff"
-  font-family="dejavu sans, verdana, geneva, sans-serif"
+  font-family="verdana, geneva, dejavu sans, sans-serif"
   font-size="11"
   font-weight="bold"
   text-anchor="middle"
@@ -2293,6 +2290,10 @@ body {
     ${modeCoverageIgnoreFile} ${coveragePct} %<br>
     ${linesCovered} / ${linesTotal}
   </td>
+  <td style="text-align: right;">
+    <br>
+    ${linesTotal - linesCovered} / ${linesTotal}
+  </td>
   </tr>
     `).trim() + "\n";
     });
@@ -2320,6 +2321,7 @@ body {
         lineHtml = "";
         lineId = "line_" + (ii + 1);
         switch (count) {
+        case -1:
         case 0:
           if (holeList.length === 0) {
             lineHtml += "</span>";
@@ -2350,11 +2352,11 @@ body {
           }) {
             if (inHole !== isHole) {
               lineHtml += htmlEscape(chunk);
-              lineHtml += (
-                isHole
-                ? "</span><span class=\"uncovered\">"
-                : "</span><span>"
-              );
+              lineHtml += "</span><span";
+              if (isHole) {
+                lineHtml += " class=\"uncovered\"";
+              }
+              lineHtml += ">";
               chunk = "";
               inHole = isHole;
             }
@@ -2377,7 +2379,7 @@ body {
           : ""
         )}"
 >
-${String(count).padStart(7, " ")}
+${String(count || "-0").padStart(7, " ")}
 </span>
 <span>${lineHtml}</span>
 </pre>
@@ -2434,6 +2436,29 @@ function sentinel() {}
   coverageDir = modulePath.resolve(coverageDir).replace((
     /\\/g
   ), "/") + "/";
+
+  processArgv = processArgv.slice();
+  while (processArgv[0] && processArgv[0][0] === "-") {
+    processArgElem = processArgv.shift().split("=");
+    processArgElem[1] = processArgElem.slice(1).join("=");
+    switch (processArgElem[0]) {
+    case "--exclude":
+      fileExcludeList = fileExcludeList.concat(
+        processArgElem[1].split(",")
+      );
+      break;
+    case "--exclude-node-modules":
+      fileIncludeNodeModules = (
+        /0|false|null|undefined/
+      ).test(processArgElem[1]);
+      break;
+    case "--include":
+      fileIncludeList = fileIncludeList.concat(
+        processArgElem[1].split(",")
+      );
+      break;
+    }
+  }
   if (processArgv.length > 0) {
     await fsWriteFileWithParents(coverageDir + "/touch.txt", "");
     await Promise.all(Array.from(
@@ -2483,10 +2508,15 @@ function sentinel() {}
         !pathname
         || pathname.startsWith("[")
         || (
-          process.env.npm_config_mode_coverage !== "all"
+          !fileIncludeNodeModules
           && (
             /(?:^|\/)node_modules\//m
           ).test(pathname)
+        )
+        || fileExcludeList.indexOf(pathname) >= 0
+        || (
+          fileIncludeList.length > 0
+          && fileIncludeList.indexOf(pathname) === -1
         )
       ) {
         return;
@@ -2499,7 +2529,7 @@ function sentinel() {}
   v8CoverageObj = v8CoverageListMerge(v8CoverageObj);
   await fsWriteFileWithParents(
     coverageDir + "v8_coverage_merged.json",
-    JSON.stringify(v8CoverageObj)
+    JSON.stringify(v8CoverageObj, undefined, 1)
   );
   fileDict = {};
   await Promise.all(v8CoverageObj.result.map(async function ({
@@ -2585,7 +2615,7 @@ function sentinel() {}
       linesTotal,
       modeCoverageIgnoreFile: (
         (
-          /^\/\*mode-coverage-ignore-file\*\/$/m
+          /^\/\*coverage-ignore-file\*\/$/m
         ).test(source.slice(0, 65536))
         ? "(ignore)"
         : ""
@@ -2615,9 +2645,9 @@ function sentinel() {}
 }
 v8CoverageReportCreate({
   coverageDir: ".artifact/coverage",
-  process_argv: process.argv.slice(1)
+  processArgv: process.argv.slice(2)
 });
-' "$@" # '
+' 0 "$@" # '
 )}
 
 shRunWithScreenshotTxt() {(set -e
@@ -2637,7 +2667,7 @@ shRunWithScreenshotTxt() {(set -e
     printf "shRunWithScreenshotTxt - EXIT_CODE=$EXIT_CODE - $SCREENSHOT_SVG\n" \
         1>&2
     # format text-output
-    node --input-type=module -e '
+    node --input-type=module --eval '
 import moduleFs from "fs";
 (async function () {
     let result = await moduleFs.promises.readFile(
@@ -2734,11 +2764,6 @@ shCiMain() {(set -e
     if [ -f ./.ci.sh ]
     then
         . ./.ci.sh "$@"
-    fi
-    if [ "$npm_config_mode_coverage" ] && [ "$1" = "node" ]
-    then
-        shRunWithCoverage "$@"
-        return
     fi
     "$@"
 )}

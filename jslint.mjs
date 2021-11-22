@@ -94,10 +94,11 @@
 /*jslint beta, node*/
 
 /*property
+    mode_conditional,
     JSLINT_BETA, NODE_V8_COVERAGE, a, all, argv, arity, artifact,
     assertErrorThrownAsync, assertJsonEqual, assertOrThrow, assign, async, b,
     beta, bitwise, block, body, browser, c, calls, catch, catch_list,
-    catch_stack, causes, char, children, cjs_module, cjs_require, clear, closer,
+    catch_stack, causes, char, children, clear, closer,
     closure, code, column, concat, consoleError, console_error, console_log,
     constant, context, convert, count, coverageDir, create, cwd, d, dead,
     debugInline, default, delta, devel, directive, directive_list,
@@ -105,7 +106,7 @@
     ellipsis, else, end, endOffset, endsWith, entries, env, error, eval, every,
     example_list, exec, execArgv, exit, export_dict, exports, expression, extra,
     file, fileList, fileURLToPath, filter, finally, flag, floor, for, forEach,
-    formatted_message, free, freeze, from, froms, fsRmRecursive,
+    formatted_message, free, freeze, from, froms,
     fsWriteFileWithParents, fud, functionName, function_list, function_stack,
     functions, get, getset, github_repo, global, global_dict, global_list,
     holeList, htmlEscape, id, identifier, import, import_list, inc, indent2,
@@ -120,7 +121,7 @@
     mkdir, modeCoverageIgnoreFile, modeIndex, mode_cli, mode_json, mode_module,
     mode_noop, mode_property, mode_shebang, mode_stop, module, moduleFsInit,
     moduleName, module_list, name, names, node, noop, now,
-    npm_config_mode_coverage, nr, nud, ok, on, open, opening, option,
+    nr, nud, objectDeepCopyWithKeysSorted, ok, on, open, opening, option,
     option_dict, order, package_name, padEnd, padStart, parameters, parent,
     parentIi, parse, pathname, platform, pop, processArgv, process_argv,
     process_env, process_exit, process_version, promises, property,
@@ -142,16 +143,18 @@ let debugInline = (function () {
     let consoleError = function () {
         return;
     };
-    return function (...argv) {
+    function debug(...argv) {
 
-// This function will both print <argv> to stderr and return <argv>[0].
+// This function will print <argv> to stderr and then return <argv>[0].
 
         consoleError("\n\ndebugInline");
         consoleError(...argv);
         consoleError("\n");
-        consoleError = console.error;
         return argv[0];
-    };
+    }
+    debug(); // Coverage-hack.
+    consoleError = console.error;
+    return debug;
 }());
 let jslint_charset_ascii = (
     "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007"
@@ -162,7 +165,7 @@ let jslint_charset_ascii = (
     + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
     + "`abcdefghijklmnopqrstuvwxyz{|}~\u007f"
 );
-let jslint_edition = "v2021.10.20";
+let jslint_edition = "v2021.11.20";
 let jslint_export;                      // The jslint object to be exported.
 let jslint_fudge = 1;                   // Fudge starting line and starting
                                         // ... column to 1.
@@ -180,7 +183,7 @@ let moduleUrl;
 
 async function assertErrorThrownAsync(asyncFunc, regexp) {
 
-// This function will assert <asyncFunc> throws an error.
+// This function will assert calling <asyncFunc> throws an error.
 
     let err;
     try {
@@ -188,14 +191,14 @@ async function assertErrorThrownAsync(asyncFunc, regexp) {
     } catch (errCaught) {
         err = errCaught;
     }
-    assertOrThrow(err, "no error thrown");
+    assertOrThrow(err, "No error thrown.");
     assertOrThrow(
         regexp === undefined || new RegExp(regexp).test(err.message),
         err
     );
 }
 
-function assertJsonEqual(aa, bb) {
+function assertJsonEqual(aa, bb, message) {
 
 // This function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>).
 
@@ -203,7 +206,11 @@ function assertJsonEqual(aa, bb) {
     bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
     if (aa !== bb) {
         throw new Error(
-            JSON.stringify(aa) + " !== " + JSON.stringify(bb)
+            JSON.stringify(aa) + " !== " + JSON.stringify(bb) + (
+                message
+                ? " - " + message
+                : ""
+            )
         );
     }
 }
@@ -228,31 +235,6 @@ function empty() {
 // 'constructor' are completely avoided.
 
     return Object.create(null);
-}
-
-async function fsRmRecursive(path, option_dict) {
-
-// This function will 'rm -r' <path>.
-
-    await moduleFsInit();
-    console.error("rm -r path " + path);
-    if (((
-        option_dict && option_dict.process_version
-    ) || process.version) < "v14") {
-
-// Legacy rmdir for nodejs v12
-
-        await Promise.all([
-            moduleFs.promises.unlink(path).catch(noop),
-            moduleFs.promises.rmdir(path, {
-                recursive: true
-            }).catch(noop)
-        ]);
-        return;
-    }
-    await moduleFs.promises.rm(path, {
-        recursive: true
-    }).catch(noop);
 }
 
 async function fsWriteFileWithParents(pathname, data) {
@@ -1450,8 +1432,6 @@ ${String(message).slice(0, 2000)}`
 }
 
 async function jslint_cli({
-    cjs_module,
-    cjs_require,
     console_error,
     console_log,
     file,
@@ -1477,9 +1457,18 @@ async function jslint_cli({
         code,
         file,
         line_offset = 0,
+        mode_conditional,
         option = empty()
     }) {
         let result_from_file;
+        if (
+            mode_conditional
+            && !(
+                /^\/\*jslint\b/m
+            ).test(code.slice(0, 65536))
+        ) {
+            return;
+        }
         option = Object.assign(empty(), option, {
             file
         });
@@ -1504,28 +1493,25 @@ async function jslint_cli({
                 return "";
             });
             return;
+        case ".md":
+
+// Recursively jslint embedded "node --eval '\n...\n'".
+
+            jslint_node_eval({
+                code,
+                file,
+                mode_conditional: true,
+                option
+            });
+            return;
         case ".sh":
 
-// Recursively jslint embedded "node -e '\n...\n'".
+// Recursively jslint embedded "node --eval '\n...\n'".
 
-            code.replace((
-                /\bnode\b.*? -e '\n([\S\s]*?\n)'/gm
-            ), function (ignore, match1, ii) {
-                jslint_from_file({
-                    code: match1,
-                    file: file + ".<node -e>.js",
-                    line_offset: string_line_count(code.slice(0, ii)) + 1,
-                    option: Object.assign(empty(), {
-                        beta: Boolean(
-                            process_env.JSLINT_BETA
-                            && !(
-                                /0|false|null|undefined/
-                            ).test(process_env.JSLINT_BETA)
-                        ),
-                        node: true
-                    }, option)
-                });
-                return "";
+            jslint_node_eval({
+                code,
+                file,
+                option
             });
             return;
         default:
@@ -1568,6 +1554,34 @@ async function jslint_cli({
         return result_from_file;
     }
 
+    function jslint_node_eval({
+        code,
+        file,
+        mode_conditional,
+        option = empty()
+    }) {
+        code.replace((
+            /\bnode\b.*? (?:--eval|-e) '\n([\S\s]*?\n)'/gm
+        ), function (ignore, match1, ii) {
+            jslint_from_file({
+                code: match1,
+                file: file + ".<node -e>.js",
+                line_offset: string_line_count(code.slice(0, ii)) + 1,
+                mode_conditional,
+                option: Object.assign(empty(), {
+                    beta: Boolean(
+                        process_env.JSLINT_BETA
+                        && !(
+                            /0|false|null|undefined/
+                        ).test(process_env.JSLINT_BETA)
+                    ),
+                    node: true
+                }, option)
+            });
+            return "";
+        });
+    }
+
     function string_line_count(code) {
 
 // This function will count number of newlines in <code>.
@@ -1606,16 +1620,11 @@ async function jslint_cli({
     process_env = process_env || process.env;
     process_exit = process_exit || process.exit;
     await moduleFsInit();
-    if (!(
+    if (
+        !(
 
-// Feature-detect nodejs-cjs-cli.
+// Feature-detect nodejs-cli.
 
-        (cjs_module && cjs_require)
-        ? cjs_module === cjs_require.main
-
-// Feature-detect nodejs-esm-cli.
-
-        : (
             process.execArgv.indexOf("--eval") === -1
             && process.execArgv.indexOf("-e") === -1
             && (
@@ -1624,10 +1633,11 @@ async function jslint_cli({
                 ).test(process_argv[1])
                 || mode_cli
             )
-            && moduleUrl.fileURLToPath(jslint_import_meta_url) ===
-            modulePath.resolve(process_argv[1])
+            && moduleUrl.fileURLToPath(jslint_import_meta_url)
+            === modulePath.resolve(process_argv[1])
         )
-    ) && !mode_cli) {
+        && !mode_cli
+    ) {
         return exit_code;
     }
 
@@ -1718,6 +1728,7 @@ async function jslint_cli({
                 case ".html":
                 case ".js":
                 case ".json":
+                case ".md":
                 case ".mjs":
                 case ".sh":
                     break;
@@ -1729,11 +1740,12 @@ async function jslint_cli({
                 } catch (ignore) {
                     return;
                 }
-                if (!(
-                    !(
+                if (
+                    (
                         /(?:\b|_)(?:lock|min|raw|rollup)(?:\b|_)/
-                    ).test(file2) && code && code.length < 1048576
-                )) {
+                    ).test(file2)
+                    || !(code && code.length < 1048576)
+                ) {
                     return;
                 }
                 jslint_from_file({
@@ -2965,12 +2977,10 @@ function jslint_phase2_lex(state) {
         switch (val && key) {
 
 // Assign global browser variables to global_dict.
-// /*jslint beta, browser, devel*/
-// console.log(JSON.stringify(Array.from([
-//     ...
-// ]).filter(function (key) {
-//     return window.hasOwnProperty(key);
-// }), undefined, 4));
+/*
+// /\*jslint beta, browser, devel*\/
+console.log(JSON.stringify(Object.keys(window).sort(), undefined, 4));
+*/
 
         case "browser":
             object_assign_from_list(global_dict, [
@@ -2978,6 +2988,7 @@ function jslint_phase2_lex(state) {
 // Shared with Node.js.
 
                 "AbortController",
+                // "Buffer",
                 "DOMException",
                 "Event",
                 "EventTarget",
@@ -2989,17 +3000,33 @@ function jslint_phase2_lex(state) {
                 "URL",
                 "URLSearchParams",
                 "WebAssembly",
+                // "__dirname",
+                // "__filename",
                 // "atob",
                 // "btoa",
+                // "clearImmediate",
                 "clearInterval",
                 "clearTimeout",
                 // "console",
+                // "exports",
+                // "global",
+                // "module",
                 "performance",
+                // "process",
                 "queueMicrotask",
+                // "require",
+                // "setImmediate",
                 "setInterval",
                 "setTimeout",
+                "structuredClone",
 
-// Browser only.
+// Web worker only.
+// https://github.com/mdn/content/blob/main/files/en-us/web/api
+// /workerglobalscope/index.md
+
+                "importScripts",
+
+// Window.
 
                 // "CharacterData",
                 // "DocumentType",
@@ -3023,6 +3050,7 @@ function jslint_phase2_lex(state) {
                 // "event",
                 "fetch",
                 // "history",
+                "indexedDb",
                 "localStorage",
                 "location",
                 // "name",
@@ -3061,7 +3089,7 @@ function jslint_phase2_lex(state) {
 // These are the globals that are provided by the language standard.
 // Assign global ECMAScript variables to global_dict.
 /*
-node --input-type=module -e '
+node --input-type=module --eval '
 // /\*jslint beta, node*\/
 import https from "https";
 (async function () {
@@ -3069,8 +3097,8 @@ import https from "https";
     let result = "";
     await new Promise(function (resolve) {
         https.get((
-            "https://raw.githubusercontent.com/mdn/content/main/files/"
-            + "en-us/web/javascript/reference/global_objects/index.md"
+            "https://raw.githubusercontent.com/mdn/content/main/files"
+            + "/en-us/web/javascript/reference/global_objects/index.md"
         ), function (res) {
             res.on("data", function (chunk) {
                 result += chunk;
@@ -3154,7 +3182,7 @@ import https from "https";
 
 // Assign global Node.js variables to global_dict.
 /*
-node --input-type=module -e '
+node --input-type=module --eval '
 // /\*jslint beta, node*\/
 import moduleHttps from "https";
 (async function () {
@@ -3162,8 +3190,8 @@ import moduleHttps from "https";
     let result = "";
     await new Promise(function (resolve) {
         moduleHttps.get((
-            "https://raw.githubusercontent.com/nodejs/node/master/doc/api/"
-            + "globals.md"
+            "https://raw.githubusercontent.com/nodejs/node/master/doc/api"
+            + "/globals.md"
         ), function (res) {
             res.on("data", function (chunk) {
                 result += chunk;
@@ -3213,7 +3241,8 @@ import moduleHttps from "https";
                 "require",
                 "setImmediate",
                 "setInterval",
-                "setTimeout"
+                "setTimeout",
+                "structuredClone"
             ], "Node.js");
             break;
         }
@@ -4823,10 +4852,12 @@ function jslint_phase3_parse(state) {
 
     function prefix_await() {
         const the_await = token_now;
-        if (functionage.async === 0) {
+
+// PR-370 - Add top-level-await support.
+
+        if (functionage.async === 0 && functionage !== token_global) {
 
 // test_cause:
-// ["await", "prefix_await", "unexpected_a", "await", 1]
 // ["function aa(){aa=await 0;}", "prefix_await", "unexpected_a", "await", 18]
 // ["function aa(){await 0;}", "prefix_await", "unexpected_a", "await", 15]
 
@@ -7832,8 +7863,10 @@ function jslint_phase4_walk(state) {
                 left_variable = parent.context[left.id];
                 if (
                     left_variable !== undefined
-                    // Coverage-hack.
-                    // && left_variable.dead
+
+// Probably deadcode.
+// && left_variable.dead
+
                     && left_variable.parent === parent
                     && left_variable.calls !== undefined
                     && left_variable.calls[functionage.name.id] !== undefined
@@ -8812,6 +8845,14 @@ function jslint_report({
     let html = "";
     let length_80 = 1111;
 
+    function address(line = 1, column = 1) {
+
+// This function will create HTML address element from <line> and <column>
+
+        return `<address>${Number(line)}: ${Number(column)}</address>`;
+
+    }
+
     function detail(title, list) {
         return (
             (Array.isArray(list) && list.length > 0)
@@ -8993,15 +9034,12 @@ pyNj+JctcQLXenBOCms46aMkenIx45WpXqxxVJQLz/vgpmAVa0fmDv6Pue9xVTBPfVxCUGfj\
 }
 /*csslint ignore:end*/
 
-.JSLINT_ {
-    font-family: daley, sans-serif;
-    font-size: 14px;
-}
+/* css - jslint_report - font */
+.JSLINT_,
 .JSLINT_ fieldset legend,
 .JSLINT_ .center {
     font-family: daley, sans-serif;
     font-size: 14px;
-    text-align: center;
 }
 .JSLINT_ fieldset textarea,
 .JSLINT_ #JSLINT_REPORT_FUNCTIONS dt,
@@ -9015,7 +9053,18 @@ pyNj+JctcQLXenBOCms46aMkenIx45WpXqxxVJQLz/vgpmAVa0fmDv6Pue9xVTBPfVxCUGfj\
 .JSLINT_ fieldset > div {
     font-family: sans-serif;
 }
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
+    font-style: normal;
+    font-weight: bold;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
+    font-style: italic;
+}
+.JSLINT_ #JSLINT_REPORT_TITLE {
+    font-size: 32px;
+}
 
+/* css - jslint_report - general */
 body {
     background: antiquewhite;
 }
@@ -9027,6 +9076,10 @@ body {
 }
 .JSLINT_ fieldset address {
     float: right;
+}
+.JSLINT_ fieldset legend,
+.JSLINT_ .center {
+    text-align: center;
 }
 .JSLINT_ fieldset legend {
     background: darkslategray;
@@ -9058,15 +9111,12 @@ body {
 }
 .JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
     display: block;
-    font-style: normal;
-    font-weight: bold;
     line-height: 20px;
 }
 .JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dl {
     position: relative
 }
 .JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
-    font-style: italic;
     line-height: 20px;
     position: absolute;
     text-align: right;
@@ -9125,9 +9175,7 @@ body {
 }
 .JSLINT_ #JSLINT_REPORT_TITLE {
     color: darkslategray;
-    font-size: 32px;
     padding-top: 16px;
-    text-align: center;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS cite {
     display: block;
@@ -9160,7 +9208,7 @@ body {
 
 // Produce the Title.
 
-    html += "<div id=\"JSLINT_REPORT_TITLE\">\n";
+    html += "<div class=\"center\" id=\"JSLINT_REPORT_TITLE\">\n";
     html += "JSLint Report\n";
     html += "</div>\n";
 
@@ -9186,7 +9234,7 @@ body {
     }, ii) {
         html += (
             "<cite>"
-            + "<address>" + htmlEscape(line + ": " + column) + "</address>"
+            + address(line, column)
             + htmlEscape((ii + 1) + ". " + message)
             + "</cite>"
             + "<samp>"
@@ -9272,6 +9320,7 @@ body {
     functions.forEach(function (the_function) {
         let {
             context,
+            from,
             level,
             line,
             name,
@@ -9285,7 +9334,7 @@ body {
         let params;
         html += (
             "<div class=\"level level" + htmlEscape(level) + "\">"
-            + "<address>" + htmlEscape(line) + "</address>"
+            + address(line, from + 1)
             + "<dfn>"
             + (
                 name === "=>"
@@ -9503,13 +9552,13 @@ function objectDeepCopyWithKeysSorted(obj) {
         return obj;
     }
 
-// recursively deep-copy list with child-keys sorted
+// Recursively deep-copy list with child-keys sorted.
 
     if (Array.isArray(obj)) {
         return obj.map(objectDeepCopyWithKeysSorted);
     }
 
-// recursively deep-copy obj with keys sorted
+// Recursively deep-copy obj with keys sorted.
 
     sorted = {};
     Object.keys(obj).sort().forEach(function (key) {
@@ -9830,29 +9879,6 @@ function v8CoverageListMerge(processCovs) {
         return funcCov;
     }
 
-    function sortProcess(processCov) {
-
-// This function will sort <processCov>.result.
-// Sorts the scripts alphabetically by `url`.
-// Reassigns script ids: the script at index `0` receives `"0"`, the script at
-// index `1` receives `"1"` etc.
-
-        Object.entries(processCov.result.sort(function (aa, bb) {
-            return (
-                aa.url < bb.url
-                ? -1
-                : aa.url > bb.url
-                ? 1
-                : 0
-            );
-        })).forEach(function ([
-            scriptId, scriptCov
-        ]) {
-            scriptCov.scriptId = scriptId.toString(10);
-        });
-        return processCov;
-    }
-
     function sortScript(scriptCov) {
 
 // This function will normalize-and-sort <scriptCov>.functions.
@@ -10015,18 +10041,6 @@ function v8CoverageListMerge(processCovs) {
             result: []
         };
     }
-    if (processCovs.length === 1) {
-
-// Normalize-and-sort scriptCov.
-
-        processCovs[0].result.forEach(function (scriptCov) {
-            sortScript(scriptCov);
-        });
-
-// Sort processCovs[0].result.
-
-        return sortProcess(processCovs[0]);
-    }
 
 // Init urlToScriptDict.
 
@@ -10168,9 +10182,25 @@ function v8CoverageListMerge(processCovs) {
             url: scriptCovs[0].url
         }));
     });
-    return sortProcess({
-        result: resultMerged
+
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+
+    Object.entries(resultMerged.sort(function (aa, bb) {
+        return (
+            aa.url > bb.url
+            ? 1
+            : -1
+        );
+    })).forEach(function ([
+        scriptId, scriptCov
+    ]) {
+        scriptCov.scriptId = scriptId.toString(10);
     });
+    return {
+        result: resultMerged
+    };
 }
 
 async function v8CoverageReportCreate({
@@ -10188,6 +10218,10 @@ async function v8CoverageReportCreate({
     let cwd;
     let exitCode = 0;
     let fileDict;
+    let fileExcludeList = [];
+    let fileIncludeList = [];
+    let fileIncludeNodeModules;
+    let processArgElem;
     let promiseList = [];
     let v8CoverageObj;
 
@@ -10216,6 +10250,8 @@ box-sizing: border-box;
     font-family: consolas, menlo, monospace;
 }
 /*csslint ignore:end*/
+
+/* css - coverage_report - general */
 body {
     margin: 0;
 }
@@ -10228,8 +10264,9 @@ body {
 .coverage td,
 .coverage th {
     border: 1px solid #777;
+    line-height: 20px;
     margin: 0;
-    padding: 5px;
+    padding: 5px 10px;
 }
 .coverage td span {
     display: inline-block;
@@ -10269,30 +10306,30 @@ body {
     margin-bottom: 10px;
 }
 
+/* css - coverage_report - color */
 .coverage td,
 .coverage th {
     background: #fff;
 }
+.coverage .count,
+.coverage .coverageHigh {
+    background: #9d9;
+}
 .coverage .count {
-    background: #9d9;
-    color: #777;
+    color: #666;
 }
-.coverage .coverageHigh{
-    background: #9d9;
-}
-.coverage .coverageIgnore{
+.coverage .coverageIgnore {
     background: #ccc;
 }
-.coverage .coverageLow{
+.coverage .coverageLow,
+.coverage .uncovered {
     background: #ebb;
 }
-.coverage .coverageMedium{
+.coverage .coverageMedium {
     background: #fd7;
 }
 .coverage .footer,
-.coverage .header {
-    background: #ddd;
-}
+.coverage .header,
 .coverage .lineno {
     background: #ddd;
 }
@@ -10302,17 +10339,15 @@ body {
 .coverage .percentbar div {
     background: #666;
 }
-.coverage .uncovered {
-    background: #dbb;
-}
 
+/* css - coverage_report - important */
 .coverage pre:hover span,
 .coverage tr:hover td {
     background: #7d7;
 }
 .coverage pre:hover span.uncovered,
 .coverage tr:hover td.coverageLow {
-    background: #d99;
+    background: #f99;
 }
 </style>
 </head>
@@ -10325,6 +10360,7 @@ body {
     <tr>
     <th>Files covered</th>
     <th>Lines</th>
+    <th>Remaining</th>
     </tr>
 </thead>
 <tbody>
@@ -10417,7 +10453,7 @@ body {
                 xx1 = 6 * str1.length + 20;
                 xx2 = 6 * str2.length + 20;
 
-// Fs - write coverage_badge.svg
+// Fs - write coverage_badge.svg.
 
                 promiseList.push(fsWriteFileWithParents((
                     coverageDir + "coverage_badge.svg"
@@ -10427,7 +10463,7 @@ body {
 <rect fill="${fill}" height="20" width="${xx2}" x="${xx1}"/>
 <g
     fill="#fff"
-    font-family="dejavu sans, verdana, geneva, sans-serif"
+    font-family="verdana, geneva, dejavu sans, sans-serif"
     font-size="11"
     font-weight="bold"
     text-anchor="middle"
@@ -10483,6 +10519,10 @@ body {
         ${modeCoverageIgnoreFile} ${coveragePct} %<br>
         ${linesCovered} / ${linesTotal}
     </td>
+    <td style="text-align: right;">
+        <br>
+        ${linesTotal - linesCovered} / ${linesTotal}
+    </td>
     </tr>
         `).trim() + "\n";
         });
@@ -10510,10 +10550,7 @@ body {
                 lineHtml = "";
                 lineId = "line_" + (ii + 1);
                 switch (count) {
-
-// PR-364 - Probably deadcode.
-// case -1:
-
+                case -1:
                 case 0:
                     if (holeList.length === 0) {
                         lineHtml += "</span>";
@@ -10544,11 +10581,15 @@ body {
                     }) {
                         if (inHole !== isHole) {
                             lineHtml += htmlEscape(chunk);
-                            lineHtml += (
-                                isHole
-                                ? "</span><span class=\"uncovered\">"
-                                : "</span><span>"
-                            );
+                            lineHtml += "</span><span";
+
+// Coverage-hack - Ugly-hack around possible deadcode where isHole is always
+// true.
+
+                            if (isHole) {
+                                lineHtml += " class=\"uncovered\"";
+                            }
+                            lineHtml += ">";
                             chunk = "";
                             inHole = isHole;
                         }
@@ -10571,7 +10612,7 @@ body {
                     : ""
                 )}"
 >
-${String(count).padStart(7, " ")}
+${String(count || "-0").padStart(7, " ")}
 </span>
 <span>${lineHtml}</span>
 </pre>
@@ -10595,14 +10636,14 @@ ${String(count).padStart(7, " ")}
 </html>
         `).trim() + "\n";
 
-// Fs - write <file>.html
+// Fs - write <file>.html.
 
         promiseList.push(fsWriteFileWithParents(pathname + ".html", html));
         if (!modeIndex) {
             return;
         }
 
-// Fs - write coverage_report.txt
+// Fs - write coverage_report.txt.
 
         consoleError("\n" + txt);
         promiseList.push(fsWriteFileWithParents((
@@ -10640,7 +10681,7 @@ function sentinel() {}
 
     assertOrThrow(coverageDir, "invalid coverageDir " + coverageDir);
 
-// CL-xxx - coverage - Relax requirement for coverageDir to be in cwd.
+// CL-61b11012 - coverage - Relax requirement for coverageDir to be in cwd.
 //     assertOrThrow(
 //         pathnameRelativeCwd(coverageDir),
 //         "coverageDir " + coverageDir + " is not subdirectory of cwd " + cwd
@@ -10649,6 +10690,38 @@ function sentinel() {}
     coverageDir = modulePath.resolve(coverageDir).replace((
         /\\/g
     ), "/") + "/";
+
+    processArgv = processArgv.slice();
+    while (processArgv[0] && processArgv[0][0] === "-") {
+        processArgElem = processArgv.shift().split("=");
+        processArgElem[1] = processArgElem.slice(1).join("=");
+        switch (processArgElem[0]) {
+
+// PR-371 - add cli-option `--exclude=aa,bb`
+
+        case "--exclude":
+            fileExcludeList = fileExcludeList.concat(
+                processArgElem[1].split(",")
+            );
+            break;
+
+// PR-371 - add cli-option `--exclude-node-modules=false`
+
+        case "--exclude-node-modules":
+            fileIncludeNodeModules = (
+                /0|false|null|undefined/
+            ).test(processArgElem[1]);
+            break;
+
+// PR-371 - add cli-option `--include=aa,bb`
+
+        case "--include":
+            fileIncludeList = fileIncludeList.concat(
+                processArgElem[1].split(",")
+            );
+            break;
+        }
+    }
 
 // 1. Spawn node.js program <processArgv> with coverage
 
@@ -10672,7 +10745,7 @@ function sentinel() {}
                 processArgv[0] === "npm"
 
 // If win32 environment, then replace program npm with npm.cmd.
-// Coverage-hack - Ugly hack to get test-coverage under both win32 and linux.
+// Coverage-hack - Ugly-hack to get test-coverage under both win32 and linux.
 
                 ? process.platform.replace("win32", "npm.cmd").replace(
                     process.platform,
@@ -10720,13 +10793,24 @@ function sentinel() {}
                 !pathname
                 || pathname.startsWith("[")
 
-// Filter directory node_modules.
+// PR-371 - Filter directory node_modules.
 
                 || (
-                    process.env.npm_config_mode_coverage !== "all"
+                    !fileIncludeNodeModules
                     && (
                         /(?:^|\/)node_modules\//m
                     ).test(pathname)
+                )
+
+// PR-371 - Filter fileExcludeList.
+
+                || fileExcludeList.indexOf(pathname) >= 0
+
+// PR-371 - Filter fileIncludeList.
+
+                || (
+                    fileIncludeList.length > 0
+                    && fileIncludeList.indexOf(pathname) === -1
                 )
             ) {
                 return;
@@ -10745,7 +10829,7 @@ function sentinel() {}
 
     await fsWriteFileWithParents(
         coverageDir + "v8_coverage_merged.json",
-        JSON.stringify(v8CoverageObj)
+        JSON.stringify(v8CoverageObj, undefined, 1)
     );
 
 // 3. Create html-coverage-reports in <coverageDir>.
@@ -10840,7 +10924,7 @@ function sentinel() {}
             linesTotal,
             modeCoverageIgnoreFile: (
                 (
-                    /^\/\*mode-coverage-ignore-file\*\/$/m
+                    /^\/\*coverage-ignore-file\*\/$/m
                 ).test(source.slice(0, 65536))
                 ? "(ignore)"
                 : ""
@@ -10880,7 +10964,6 @@ jslint_export = Object.freeze(Object.assign(jslint, {
     assertJsonEqual,
     assertOrThrow,
     debugInline,
-    fsRmRecursive,
     fsWriteFileWithParents,
     htmlEscape,
     jslint,
@@ -10900,6 +10983,7 @@ jslint_export = Object.freeze(Object.assign(jslint, {
     jstestOnExit,
     moduleFsInit,
     noop,
+    objectDeepCopyWithKeysSorted,
     v8CoverageListMerge,
     v8CoverageReportCreate
 }));
@@ -10908,25 +10992,4 @@ export default Object.freeze(jslint_export);    // Export jslint as esm.
 jslint_import_meta_url = import.meta.url;
 
 // Run jslint_cli.
-
-(function () {
-    let cjs_module;
-    let cjs_require;
-
-// Coverage-hack.
-// Init commonjs builtins in try-catch-block in case we're in es-module-mode.
-
-    try {
-        cjs_module = module;
-    } catch (ignore) {}
-    try {
-        cjs_require = require;
-    } catch (ignore) {}
-    jslint_cli({
-        cjs_module,
-        cjs_require
-    });
-}());
-
-// Coverage-hack.
-debugInline();
+jslint_cli({});

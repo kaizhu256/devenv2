@@ -273,7 +273,9 @@ function! SaveAndCpplint(bang)
     "" cpplint file
     let &l:errorformat = '%f:%l:  %m [%t]'
     "" let &l:errorformat = "%a%f:%l:  %m [%t],%-g%.%#"
-    let &l:makeprg = "python \"" . $HOME . "/.vim/cpplint.py\"" . l:file
+    let &l:makeprg = "python \"" . $HOME . "/.vim/cpplint.py\""
+        \ . " --filter=-whitespace/comments"
+        \ . l:file
     silent make!
     cwindow
     redraw!

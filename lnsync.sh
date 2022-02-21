@@ -20,7 +20,7 @@
     # ln ~/.vim
     mkdir -p "$HOME/.vim"
     ln -f "$HOME/jslint.mjs" "$HOME/.vim/jslint.mjs"
-    for FILE in jslint.vim
+    for FILE in jslint_wrapper_vim.vim
     do
         FILE2="$HOME/.vim/$FILE"
         if [ -f "$FILE2" ]
@@ -33,8 +33,8 @@
     # ln ~/Documents/jslint
     if [ -d "$HOME/Documents/jslint" ]
     then
+        ln -f "$HOME/.vim/jslint_wrapper_vim.vim" "$HOME/Documents/jslint/jslint_wrapper_vim.vim"
         ln -f "$HOME/jslint.mjs" "$HOME/Documents/jslint/jslint.mjs"
-        ln -f "$HOME/.vim/jslint.vim" "$HOME/Documents/jslint/jslint.vim"
         ln -f "$HOME/jslint_ci.sh" "$HOME/Documents/jslint/jslint_ci.sh"
     fi
     git diff

@@ -284,7 +284,7 @@ endfunction
 "" create vim-command ":SaveAndCpplint"
 command! -nargs=* -bang SaveAndCpplint call SaveAndCpplint("<bang>")
 
-source ~/.vim/jslint.vim
+source ~/.vim/jslint_wrapper_vim.vim
 
 "" this function will jslint the file of current buffer after saving it.
 "" before using, please save jslint.mjs to ~/.vim/jslint.mjs, e.g.:
@@ -296,7 +296,7 @@ function! MySaveAndLint(bang)
         return
     endif
     "" jslint file
-    if &filetype == "javascript" && filereadable(expand("~/.vim/jslint.vim"))
+    if &filetype == "javascript" && filereadable(expand("~/.vim/jslint_wrapper_vim.vim"))
         SaveAndJslint
         return
     endif

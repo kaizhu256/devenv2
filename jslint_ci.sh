@@ -8,6 +8,7 @@
 # git add .; npm run test2; git checkout .
 # git branch -d -r origin/aa
 # git config --global diff.algorithm histogram
+# git fetch --prune
 # git fetch origin alpha beta master && git fetch upstream alpha beta master
 # git fetch origin alpha beta master --tags
 # git fetch upstream "refs/tags/*:refs/tags/*"
@@ -20,6 +21,15 @@
 # sh jslint_ci.sh shCiBranchPromote origin alpha beta
 # sh jslint_ci.sh shRunWithScreenshotTxt .artifact/screenshot_changelog.svg head -n50 CHANGELOG.md
 # vim rgx-lowercase \L\1\e
+
+# charset - ascii
+# \u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007
+# \b\t\n\u000b\f\r\u000e\u000f
+# \u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017
+# \u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f
+#  !\"#$%&'()*+,-./0123456789:;<=>?
+# @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_
+# `abcdefghijklmnopqrstuvwxyz{|}~\u007f
 
 shBashrcDebianInit() {
 # this function will init debian:stable /etc/skel/.bashrc
@@ -233,20 +243,17 @@ import moduleUrl from "url";
 
 shCiArtifactUpload() {(set -e
 # this function will upload build-artifacts to branch-gh-pages
-    local BRANCH
+    if (! shCiIsMainJob)
+    then
+        return
+    fi
+    export GITHUB_BRANCH0="$(git rev-parse --abbrev-ref HEAD)"
     local FILE
-    node --input-type=module --eval '
-process.exit(Number(
-    `${process.version.split(".")[0]}.${process.arch}.${process.platform}`
-    !== process.env.CI_NODE_VERSION_ARCH_PLATFORM
-));
-' || return 0
     # init .git/config
     git config --local user.email "github-actions@users.noreply.github.com"
     git config --local user.name "github-actions"
-    # init $BRANCH
-    BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-    git pull --unshallow origin "$BRANCH"
+    # init $GITHUB_BRANCH0
+    git pull --unshallow origin "$GITHUB_BRANCH0"
     # init $UPSTREAM_OWNER
     export UPSTREAM_OWNER="${UPSTREAM_OWNER:-jslint-org}"
     # init $UPSTREAM_REPO
@@ -300,18 +307,14 @@ import moduleChildProcess from "child_process";
     # checkout branch-gh-pages
     git fetch origin gh-pages
     git checkout -b gh-pages origin/gh-pages
-    # update dir branch-$BRANCH
-    rm -rf "branch-$BRANCH"
-    mkdir -p "branch-$BRANCH"
-    (set -e
-        cd "branch-$BRANCH"
-        git init -b branch1
-        git pull --depth=1 .. "$BRANCH"
-        rm -rf .git
-        git add -f .
-    )
+    # update dir branch-$GITHUB_BRANCH0
+    rm -rf "branch-$GITHUB_BRANCH0"
+    git clone . "branch-$GITHUB_BRANCH0" --branch="$GITHUB_BRANCH0"
+    rm -rf "branch-$GITHUB_BRANCH0/.git"
+    # add dir branch-$GITHUB_BRANCH0
+    git add -f "branch-$GITHUB_BRANCH0"
     # update root-dir with branch-beta
-    if [ "$BRANCH" = beta ]
+    if [ "$GITHUB_BRANCH0" = beta ]
     then
         rm -rf .artifact
         git checkout beta .
@@ -325,22 +328,22 @@ import moduleChildProcess from "child_process";
             fi
         done
     fi
-    # update README.md with branch-$BRANCH and $GITHUB_REPOSITORY
+    # update README.md with branch-$GITHUB_BRANCH0 and $GITHUB_REPOSITORY
     sed -i \
-        -e "s|/branch-[0-9A-Z_a-z]*/|/branch-$BRANCH/|g" \
+        -e "s|/branch-[0-9A-Z_a-z]*/|/branch-$GITHUB_BRANCH0/|g" \
         -e "s|\b$UPSTREAM_OWNER/$UPSTREAM_REPO\b|$GITHUB_REPOSITORY|g" \
         -e "s|\b$UPSTREAM_OWNER\.github\.io/$UPSTREAM_REPO\b|$(
             printf "$GITHUB_REPOSITORY" | sed -e "s|/|.github.io/|"
         )|g" \
-        "branch-$BRANCH/README.md"
+        "branch-$GITHUB_BRANCH0/README.md"
     git status
-    git commit -am "update dir branch-$BRANCH" || true
+    git commit -am "update dir branch-$GITHUB_BRANCH0" || true
     # if branch-gh-pages has more than 50 commits,
     # then backup and squash commits
     if [ "$(git rev-list --count gh-pages)" -gt 50 ]
     then
         # backup
-        shGitCmdWithGithubToken push origin -f gh-pages:gh-pages-backup
+        git push origin -f gh-pages:gh-pages-backup
         # squash commits
         git checkout --orphan squash1
         git commit --quiet -am squash || true
@@ -348,15 +351,15 @@ import moduleChildProcess from "child_process";
         git push . -f squash1:gh-pages
         git checkout gh-pages
         # force-push squashed-commit
-        shGitCmdWithGithubToken push origin -f gh-pages
+        git push origin -f gh-pages
     fi
     # list files
     shGitLsTree
     # push branch-gh-pages
-    shGitCmdWithGithubToken push origin gh-pages
+    git push origin gh-pages
     # validate http-links
     (set -e
-        cd "branch-$BRANCH"
+        cd "branch-$GITHUB_BRANCH0"
         sleep 15
         shDirHttplinkValidate
     )
@@ -369,6 +372,17 @@ shCiArtifactUploadCustom() {(set -e
 
 shCiBase() {(set -e
 # this function will run base-ci
+    export GITHUB_BRANCH0="$(git rev-parse --abbrev-ref HEAD)"
+    # validate package.json.fileCount
+    node --input-type=module --eval '
+import moduleFs from "fs";
+globalThis.assert(
+    JSON.parse(
+        moduleFs.readFileSync("package.json") //jslint-quiet
+    ).fileCount === Number(process.argv[1]),
+    `package.json.fileCount !== ${process.argv[1]}`
+);
+' "$(git ls-tree -r HEAD | wc -l)" # '
     # update version in README.md, jslint.mjs, package.json from CHANGELOG.md
     if [ "$(git branch --show-current)" = alpha ]
     then
@@ -492,6 +506,16 @@ shCiBranchPromote() {(set -e
     git push "$REMOTE" "$REMOTE/$BRANCH1:$BRANCH2" "$@"
 )}
 
+shCiIsMainJob() {(set -e
+# this function will return 0 if current ci-job is main job
+    node --input-type=module --eval '
+process.exit(Number(
+    `node.${process.version.split(".")[0]}.${process.arch}.${process.platform}`
+    !== process.env.CI_MAIN_JOB
+));
+' "$@" # '
+)}
+
 shCiNpmPublish() {(set -e
 # this function will npm-publish package
     # init package.json for npm-publish
@@ -509,6 +533,16 @@ shCiNpmPublish() {(set -e
 shCiNpmPublishCustom() {(set -e
 # this function will run custom-code to npm-publish package
     # npm publish --access public
+)}
+
+shCiPre() {(set -e
+# this function will run pre-ci
+    return
+)}
+
+shDiffFileFromDir() {(set -e
+# this function print diff of file $1 against same file in dir $2
+    diff -u "$1" "$2/$1"
 )}
 
 shDirHttplinkValidate() {(set -e
@@ -545,7 +579,9 @@ import moduleUrl from "url";
                 process.env.GITHUB_REPOSITORY || "jslint-org/jslint"
             ).replace("/", ".github.io/"));
             if (url.startsWith("http://")) {
-                throw new Error("shDirHttplinkValidate - insecure link " + url);
+                throw new Error(
+                    `shDirHttplinkValidate - ${file} - insecure link - ${url}`
+                );
             }
             // ignore duplicate-link
             if (dict.hasOwnProperty(url)) {
@@ -613,22 +649,28 @@ shDuList() {(set -e
 )}
 
 shGitCmdWithGithubToken() {(set -e
-# this function will run git $CMD with $GITHUB_TOKEN
+# this function will run git $CMD with $MY_GITHUB_TOKEN
     local CMD
     local EXIT_CODE
-    local REMOTE
     local URL
     printf "shGitCmdWithGithubToken $*\n"
     CMD="$1"
     shift
-    REMOTE="$1"
+    URL="$1"
     shift
-    URL="$(
-        git config "remote.$REMOTE.url" \
-        | sed -e "s|https://|https://x-access-token:$GITHUB_TOKEN@|"
-    )"
+    if (printf "$URL" | grep -qv "^https://")
+    then
+        URL="$(git config "remote.$URL.url")"
+    fi
+    if [ "$MY_GITHUB_TOKEN" ]
+    then
+        URL="$(
+            printf "$URL" \
+            | sed -e "s|https://|https://x-access-token:$MY_GITHUB_TOKEN@|"
+        )"
+    fi
     EXIT_CODE=0
-    # hide $GITHUB_TOKEN in case of err
+    # hide $MY_GITHUB_TOKEN in case of err
     git "$CMD" "$URL" "$@" 2>/dev/null || EXIT_CODE="$?"
     printf "shGitCmdWithGithubToken - EXIT_CODE=$EXIT_CODE\n" 1>&2
     return "$EXIT_CODE"
@@ -664,7 +706,6 @@ shGitInitBase() {(set -e
     cp .gitconfig .git/config
     git commit -am "update owner/repo to $1" || true
 )}
-
 
 shGitLsTree() {(set -e
 # this function will "git ls-tree" all files committed in HEAD
@@ -759,6 +800,108 @@ shGitSquashPop() {(set -e
     git add .
     # commit HEAD immediately after previous $COMMIT
     git commit -am "$MESSAGE" || true
+)}
+
+shGithubFileDownload() {(set -e
+# this function will download file $1 from github repo/branch
+# https://docs.github.com/en/rest/reference/repos#create-or-update-file-contents
+# example use:
+# shGithubFileDownload octocat/hello-worId/master/hello.txt
+    shGithubFileUpload $1
+)}
+
+shGithubFileUpload() {(set -e
+# this function will upload file $2 to github repo/branch $1
+# https://docs.github.com/en/rest/reference/repos#create-or-update-file-contents
+# example use:
+# shGithubFileUpload octocat/hello-worId/master/hello.txt hello.txt
+    node --input-type=module --eval '
+import moduleFs from "fs";
+import moduleHttps from "https";
+import modulePath from "path";
+function assertOrThrow(condition, message) {
+    if (!condition) {
+        throw (
+            (!message || typeof message === "string")
+            ? new Error(String(message).slice(0, 2048))
+            : message
+        );
+    }
+}
+(async function () {
+    let branch;
+    let content = process.argv[2];
+    let path = process.argv[1];
+    let repo;
+    let responseText;
+    let url;
+    function httpRequest({
+        method,
+        payload
+    }) {
+        return new Promise(function (resolve) {
+            moduleHttps.request(`${url}?ref=${branch}`, {
+                headers: {
+                    accept: "application/vnd.github.v3+json",
+                    authorization: `token ${process.env.MY_GITHUB_TOKEN}`,
+                    "user-agent": "undefined"
+                },
+                method
+            }, function (res) {
+                responseText = "";
+                res.setEncoding("utf8");
+                res.on("data", function (chunk) {
+                    responseText += chunk;
+                });
+                res.on("end", function () {
+                    assertOrThrow(res.statusCode === 200, (
+                        "shGithubFileUpload"
+                        + `- failed to download/upload file ${url} - `
+                        + responseText
+                    ));
+                    resolve();
+                });
+            }).end(payload);
+        });
+    }
+    path = path.split("/");
+    repo = path.slice(0, 2).join("/");
+    branch = path[2];
+    path = path.slice(3).join("/");
+    url = `https://api.github.com/repos/${repo}/contents/${path}`;
+    await httpRequest({});
+    if (!content) {
+        await moduleFs.promises.writeFile(
+            modulePath.basename(url),
+            Buffer.from(JSON.parse(responseText).content, "base64")
+        );
+        return;
+    }
+    content = await moduleFs.promises.readFile(content);
+    await httpRequest({
+        method: "PUT",
+        payload: JSON.stringify({
+            branch,
+            content: content.toString("base64"),
+            "message": `upload file ${path}`,
+            sha: JSON.parse(responseText).sha
+        })
+    });
+}());
+' "$@" # '
+)}
+
+shGithubWorkflowDispatch() {(set -e
+# this function will trigger-workflow to ci-repo $1 for owner.repo.branch $2
+# example use:
+# shGithubWorkflowDispatch octocat/my_ci octocat/my_project/master
+    curl "https://api.github.com/repos/$1"\
+"/actions/workflows/ci.yml/dispatches" \
+        -H "accept: application/vnd.github.v3+json" \
+        -H "authorization: token $MY_GITHUB_TOKEN" \
+        -X POST \
+        -d '{"ref":"'"$2"'"}' \
+        -s
 )}
 
 shGrep() {(set -e
@@ -1310,6 +1453,29 @@ import modulePath from "path";
         return argList[0];
     };
 }());
+function objectDeepCopyWithKeysSorted(obj) {
+
+// This function will recursively deep-copy <obj> with keys sorted.
+
+    let sorted;
+    if (typeof obj !== "object" || !obj) {
+        return obj;
+    }
+
+// Recursively deep-copy list with child-keys sorted.
+
+    if (Array.isArray(obj)) {
+        return obj.map(objectDeepCopyWithKeysSorted);
+    }
+
+// Recursively deep-copy obj with keys sorted.
+
+    sorted = {};
+    Object.keys(obj).sort().forEach(function (key) {
+        sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
+    });
+    return sorted;
+}
 (async function () {
     let fetchList;
     let matchObj;
@@ -1332,8 +1498,23 @@ import modulePath from "path";
         /^\/\*jslint-disable\*\/\n\/\*\nshRawLibFetch\n(\{\n[\S\s]*?\n\})([\S\s]*?)\n\*\/\n/m
     ).exec(await moduleFs.promises.readFile(process.argv[1], "utf8"));
     // JSON.parse match1 with comment
-    fetchList = JSON.parse(matchObj[1]).fetchList;
-    replaceList = JSON.parse(matchObj[1]).replaceList || [];
+    matchObj[1] = Object.assign({
+        fetchList: [],
+        replaceList: []
+    }, JSON.parse(matchObj[1]));
+    fetchList = JSON.parse(JSON.stringify(matchObj[1].fetchList));
+    // normalize replaceList sorted by aa
+    replaceList = matchObj[1].replaceList.sort(function ({
+        aa
+    }, {
+        aa: bb
+    }) {
+        return (
+            aa < bb
+            ? -1
+            : 1
+        );
+    });
     // init repoDict, fetchList
     repoDict = {};
     fetchList.forEach(function (elem) {
@@ -1487,7 +1668,11 @@ import modulePath from "path";
         header = (
             matchObj.input.slice(0, matchObj.index)
             + "/*jslint-disable*/\n/*\nshRawLibFetch\n"
-            + JSON.stringify(JSON.parse(matchObj[1]), undefined, 4) + "\n"
+            + JSON.stringify(
+                objectDeepCopyWithKeysSorted(matchObj[1]),
+                undefined,
+                4
+            ) + "\n"
             + matchObj[2].split("\n\n").filter(function (elem) {
                 return elem.trim();
             }).map(function (elem) {
@@ -2843,7 +3028,7 @@ shCiMain() {(set -e
     export NODE_OPTIONS="--unhandled-rejections=strict"
     if [ -f ./.ci.sh ]
     then
-        . ./.ci.sh "$@"
+        . ./.ci.sh
     fi
     "$@"
 )}

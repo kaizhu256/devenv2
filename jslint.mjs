@@ -94,50 +94,47 @@
 /*jslint beta, node*/
 
 /*property
-    fud_stmt,
-    is_fart,
-    mode_conditional,
     JSLINT_BETA, NODE_V8_COVERAGE, a, all, argv, arity, artifact,
     assertErrorThrownAsync, assertJsonEqual, assertOrThrow, assign, async, b,
     beta, bitwise, block, body, browser, c, calls, catch, catch_list,
-    catch_stack, causes, char, children, clear, closer,
-    closure, code, column, concat, consoleError, console_error, console_log,
-    constant, context, convert, count, coverageDir, create, cwd, d, dead,
-    debugInline, default, delta, devel, directive, directive_list,
-    directive_quiet, directives, dirname, disrupt, dot, edition, elem_list,
-    ellipsis, else, end, endOffset, endsWith, entries, env, error, eval, every,
-    example_list, exec, execArgv, exit, export_dict, exports, expression, extra,
-    file, fileList, fileURLToPath, filter, finally, flag, floor, for, forEach,
-    formatted_message, free, freeze, from, froms,
-    fsWriteFileWithParents, functionName, function_list, function_stack,
-    functions, get, getset, github_repo, global, global_dict, global_list,
-    holeList, htmlEscape, id, identifier, import, import_list, inc, indent2,
-    index, indexOf, init, initial, isArray, isBlockCoverage, isHole, isNaN,
-    is_equal, is_weird, join, jslint, jslint_apidoc, jslint_assert,
-    jslint_charset_ascii, jslint_cli, jslint_edition, jslint_phase1_split,
-    jslint_phase2_lex, jslint_phase3_parse, jslint_phase4_walk,
-    jslint_phase5_whitage, jslint_report, json, jstestDescribe, jstestIt,
-    jstestOnExit, keys, label, lbp, led_infix, length, level, line, lineList,
-    line_list, line_offset, line_source, lines, linesCovered, linesTotal, live,
-    log, long, loop, m, main, map, margin, match, max, message, meta, min,
-    mkdir, modeCoverageIgnoreFile, modeIndex, mode_cli, mode_json, mode_module,
-    mode_noop, mode_property, mode_shebang, mode_stop, module, moduleFsInit,
-    moduleName, module_list, name, names, node, noop, now,
-    nr, nud_prefix, objectDeepCopyWithKeysSorted, ok, on, open, opening, option,
-    option_dict, order, package_name, padEnd, padStart, parameters, parent,
-    parentIi, parse, pathname, platform, pop, processArgv, process_argv,
-    process_env, process_exit, process_version, promises, property,
-    property_dict, push, quote, ranges, readFile, readdir, readonly, recursive,
-    reduce, repeat, replace, resolve, result, reverse, rm, rmdir, role, round,
-    scriptId, search, set, shebang, shift, signature, single, slice, some, sort,
-    source, spawn, splice, split, stack, stack_trace, start, startOffset,
-    startsWith, statement, statement_prv, stdio, stop, stop_at, stringify,
-    switch, syntax_dict, tenure, test, test_cause, test_internal_error, this,
-    thru, toString, token, token_global, token_list, token_nxt, token_tree,
-    tokens, trace, tree, trim, trimEnd, trimRight, try, type, unlink, unordered,
-    unshift, url, used, v8CoverageListMerge, v8CoverageReportCreate, value,
-    variable, version, versions, warn, warn_at, warning, warning_list, warnings,
-    white, wrapped, writeFile
+    catch_stack, causes, char, children, clear, closer, closure, code, column,
+    concat, consoleError, console_error, console_log, constant, context,
+    convert, count, coverageDir, create, cwd, d, dead, debugInline, default,
+    delta, devel, directive, directive_list, directive_quiet, directives,
+    dirname, disrupt, dot, edition, elem_list, ellipsis, else, end, endOffset,
+    endsWith, entries, env, error, eval, every, example_list, exec, execArgv,
+    exit, exitCode, export_dict, exports, expression, extra, file, fileList,
+    fileURLToPath, filter, finally, flag, floor, for, forEach,
+    formatted_message, free, freeze, from, froms, fsWriteFileWithParents,
+    fud_stmt, functionName, function_list, function_stack, functions, get,
+    getset, github_repo, global, global_dict, global_list, holeList, htmlEscape,
+    id, identifier, import, import_list, inc, indent2, index, indexOf, init,
+    initial, isArray, isBlockCoverage, isHole, isNaN, is_equal, is_fart,
+    is_weird, join, jslint, jslint_apidoc, jslint_assert, jslint_charset_ascii,
+    jslint_cli, jslint_edition, jslint_phase1_split, jslint_phase2_lex,
+    jslint_phase3_parse, jslint_phase4_walk, jslint_phase5_whitage,
+    jslint_report, json, jstestDescribe, jstestIt, jstestOnExit, keys, label,
+    lbp, led_infix, length, level, line, lineList, line_list, line_offset,
+    line_source, lines, linesCovered, linesTotal, live, log, long, loop, m, map,
+    margin, match, max, message, meta, min, mkdir, modeCoverageIgnoreFile,
+    modeIndex, mode_cli, mode_conditional, mode_json, mode_module, mode_noop,
+    mode_property, mode_shebang, mode_stop, module, moduleFsInit, moduleName,
+    module_list, name, names, node, noop, now, nr, nud_prefix,
+    objectDeepCopyWithKeysSorted, ok, on, open, opening, option, option_dict,
+    order, package_name, padEnd, padStart, parameters, parent, parentIi, parse,
+    pathname, platform, pop, processArgv, process_argv, process_env,
+    process_exit, promises, property, property_dict, push, quote, ranges,
+    readFile, readdir, readonly, recursive, reduce, repeat, replace, resolve,
+    result, reverse, role, round, scriptId, search, set, shebang, shift,
+    signature, single, slice, some, sort, source, spawn, splice, split, stack,
+    stack_trace, start, startOffset, startsWith, statement, statement_prv,
+    stdio, stop, stop_at, stringify, switch, syntax_dict, tenure, test,
+    test_cause, test_internal_error, this, thru, toString, token, token_global,
+    token_list, token_nxt, token_tree, tokens, trace, tree, trim, trimEnd,
+    trimRight, try, type, unlink, unordered, unshift, url, used,
+    v8CoverageListMerge, v8CoverageReportCreate, value, variable, version,
+    versions, warn, warn_at, warning, warning_list, warnings, white, wrapped,
+    writeFile
 */
 
 // init debugInline
@@ -167,11 +164,96 @@ let jslint_charset_ascii = (
     + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
     + "`abcdefghijklmnopqrstuvwxyz{|}~\u007f"
 );
-let jslint_edition = "v2022.2.20";
+let jslint_edition = "v2022.5.1-beta";
 let jslint_export;                      // The jslint object to be exported.
 let jslint_fudge = 1;                   // Fudge starting line and starting
                                         // ... column to 1.
 let jslint_import_meta_url = "";        // import.meta.url used by cli.
+let jslint_rgx_cap = (
+    /^[A-Z]/
+);
+let jslint_rgx_crlf = (
+    /\n|\r\n?/
+);
+let jslint_rgx_digits_bits = (
+    /^[01_]*/
+);
+let jslint_rgx_digits_decimals = (
+    /^[0-9_]*/
+);
+let jslint_rgx_digits_hexs = (
+    /^[0-9A-F_]*/i
+);
+let jslint_rgx_digits_octals = (
+    /^[0-7_]*/
+);
+let jslint_rgx_directive = (
+    /^(jslint|property|global)\s+(.*)$/
+);
+let jslint_rgx_directive_part = (
+    /([a-zA-Z$_][a-zA-Z0-9$_]*)(?::\s*(true|false))?,?\s*|$/g
+);
+let jslint_rgx_identifier = (
+    /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/
+);
+let jslint_rgx_json_number = (
+
+// https://datatracker.ietf.org/doc/html/rfc7159#section-6
+// number = [ minus ] int [ frac ] [ exp ]
+
+    /^-?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][\-+]?\d+)?$/
+);
+let jslint_rgx_mega = (
+
+// Vim-hack - vim-editor has trouble parsing naked '`' in regexp
+
+    /[\u0060\\]|\$\{/
+);
+let jslint_rgx_module = (
+    /^[a-zA-Z0-9_$:.@\-\/]+$/
+);
+let jslint_rgx_numeric_separator_illegal = (
+    /__|_$|_n$/m
+);
+let jslint_rgx_slash_star_or_slash = (
+    /\/\*|\/$/
+);
+let jslint_rgx_tab = (
+    /\t/g
+);
+let jslint_rgx_todo = (
+    /\b(?:todo|TO\s?DO|HACK)\b/
+);
+let jslint_rgx_token = new RegExp(
+    "^("
+    + "(\\s+)"
+    + "|([a-zA-Z_$][a-zA-Z0-9_$]*)"
+    + "|[(){}\\[\\],:;'\"~\\`]"
+    + "|\\?[?.]?"
+    + "|=(?:==?|>)?"
+    + "|\\.+"
+    + "|\\*[*\\/=]?"
+    + "|\\/[*\\/]?"
+    + "|\\+[=+]?"
+    + "|-[=\\-]?"
+    + "|[\\^%]=?"
+    + "|&[&=]?"
+    + "|\\"
+    + "|[|=]?"
+    + "|>{1,3}=?"
+    + "|<<?=?"
+    + "|!(?:!|==?)?"
+
+// PR-351 - Add BigInt support.
+// PR-390 - Add numeric-separator support.
+
+    + "|((?:0_?|[1-9][0-9_]*)n?)"
+    + ")"
+    + "(.*)$"
+);
+let jslint_rgx_weird_property = (
+    /^_|\$|Sync$|_$/m
+);
 let jstestCountFailed = 0;
 let jstestCountTotal = 0;
 let jstestItCount = 0;
@@ -307,10 +389,7 @@ function jslint(
     let import_list = [];       // The array collecting all import-from strings.
     let line_list = String(     // The array containing source lines.
         "\n" + source
-    ).split(
-        // rx_crlf
-        /\n|\r\n?/
-    ).map(function (line_source) {
+    ).split(jslint_rgx_crlf).map(function (line_source) {
         return {
             line_source
         };
@@ -355,8 +434,6 @@ function jslint(
     }
 
     function is_equal(aa, bb) {
-        let aa_value;
-        let bb_value;
 
 // test_cause:
 // ["0&&0", "is_equal", "", "", 0]
@@ -377,6 +454,7 @@ function jslint(
 
 // test_cause:
 // ["`${0}`&&`${0}`", "is_equal", "recurse_isArray", "", 0]
+// ["`${0}`&&`${1}`", "is_equal", "recurse_isArray", "", 0]
 
                     test_cause("recurse_isArray");
                     return is_equal(value, bb[index]);
@@ -390,21 +468,19 @@ function jslint(
 // }
 
         jslint_assert(!Array.isArray(bb), `Expected !Array.isArray(bb).`);
-        if (aa.id === "(number)" && bb.id === "(number)") {
+        switch (aa.id === bb.id && aa.id) {
+        case "(number)":
+        case "(string)":
             return aa.value === bb.value;
-        }
-        if (aa.id === "(string)") {
-            aa_value = aa.value;
-        } else if (aa.id === "`" && aa.constant) {
-            aa_value = aa.value[0];
-        }
-        if (bb.id === "(string)") {
-            bb_value = bb.value;
-        } else if (bb.id === "`" && bb.constant) {
-            bb_value = bb.value[0];
-        }
-        if (typeof aa_value === "string") {
-            return aa_value === bb_value;
+
+// PR-394 - Bugfix
+// Fix jslint falsely believing megastring literals `0` and `1` are similar.
+
+        case "`":
+            if (!is_equal(aa.value, bb.value)) {
+                return false;
+            }
+            break;
         }
         if (is_weird(aa) || is_weird(bb)) {
 
@@ -687,6 +763,12 @@ function jslint(
 //         case "function_in_loop":
 //             mm = `Don't create functions within a loop.`;
 //             break;
+
+// PR-390 - Add numeric-separator check.
+
+        case "illegal_num_separator":
+            mm = `Illegal numeric separator '_' at column ${column}.`;
+            break;
         case "infix_in":
             mm = (
                 `Unexpected 'in'. Compare with undefined,`
@@ -1841,6 +1923,8 @@ function jslint_phase2_lex(state) {
     let line_mega;              // The starting line of megastring.
     let line_source = "";       // The remaining line source string.
     let line_whole = "";        // The whole line source string.
+    let mode_digits_empty_string = 1;
+    let mode_digits_numeric_separator = 2;
     let mode_directive = true;  // true if directives are still allowed.
     let mode_mega = false;      // true if currently parsing a megastring
                                 // ... literal.
@@ -1848,33 +1932,7 @@ function jslint_phase2_lex(state) {
                                 // ... this line.
     let paren_backtrack_list = [];      // List of most recent "(" tokens at any
                                         // ... paren-depth.
-    let paren_depth = 0;                // Keeps track of current paren-depth.
-    let rx_token = new RegExp(
-        "^("
-        + "(\\s+)"
-        + "|([a-zA-Z_$][a-zA-Z0-9_$]*)"
-        + "|[(){}\\[\\],:;'\"~\\`]"
-        + "|\\?[?.]?"
-        + "|=(?:==?|>)?"
-        + "|\\.+"
-        + "|\\*[*\\/=]?"
-        + "|\\/[*\\/]?"
-        + "|\\+[=+]?"
-        + "|-[=\\-]?"
-        + "|[\\^%]=?"
-        + "|&[&=]?"
-        + "|\\"
-        + "|[|=]?"
-        + "|>{1,3}=?"
-        + "|<<?=?"
-        + "|!(?:!|==?)?"
-
-// PR-351 - Add BigInt support.
-
-        + "|(0n?|[1-9][0-9]*n?)"
-        + ")"
-        + "(.*)$"
-    );
+    let paren_depth = 0;        // Keeps track of current paren-depth.
     let snippet = "";           // A piece of string.
     let token_1;                // The first token.
     let token_prv = token_global;       // The previous token including
@@ -1956,7 +2014,7 @@ function jslint_phase2_lex(state) {
 
                     warn_at("unexpected_a", line, column, char);
                 }
-                if (read_digits("x") > 5) {
+                if (read_digits("x", undefined) > 5) {
 
 // test_cause:
 // ["\"\\u{123456}\"", "char_after_escape", "too_many_digits", "", 11]
@@ -1973,7 +2031,7 @@ function jslint_phase2_lex(state) {
                 return char_after();
             }
             char_before();
-            if (read_digits("x", true) < 4) {
+            if (read_digits("x", mode_digits_empty_string) < 4) {
 
 // test_cause:
 // ["\"\\u0\"", "char_after_escape", "expected_four_digits", "", 5]
@@ -2006,6 +2064,26 @@ function jslint_phase2_lex(state) {
 
         snippet = snippet.slice(0, -1);
         return char;
+    }
+
+    function check_numeric_separator(digits, column) {
+
+// This function will check for illegal numeric-separator in <digits>.
+
+        digits.replace((
+            jslint_rgx_numeric_separator_illegal
+        ), function (ignore, ii) {
+
+// test_cause:
+// ["0x0_0_;", "check_numeric_separator", "illegal_num_separator", "", 6]
+// ["0x0_0__0;", "check_numeric_separator", "illegal_num_separator", "", 6]
+// ["aa=1_2_;", "check_numeric_separator", "illegal_num_separator", "", 7]
+// ["aa=1_2__3;", "check_numeric_separator", "illegal_num_separator", "", 7]
+// ["aa=1_2_n;", "check_numeric_separator", "illegal_num_separator", "", 7]
+
+            warn_at("illegal_num_separator", line, column + ii + 1);
+            return "";
+        });
     }
 
     function lex_comment() {
@@ -2046,12 +2124,12 @@ function jslint_phase2_lex(state) {
 // Lex/loop through each line until "*/".
 
             while (true) {
-                // rx_star_slash
+                // jslint_rgx_star_slash
                 ii = line_source.indexOf("*/");
                 if (ii >= 0) {
                     break;
                 }
-                // rx_slash_star
+                // jslint_rgx_slash_star
                 ii = line_source.indexOf("/*");
                 if (ii >= 0) {
 
@@ -2071,8 +2149,7 @@ function jslint_phase2_lex(state) {
                 }
             }
             jj = line_source.slice(0, ii).search(
-                // rx_slash_star_or_slash
-                /\/\*|\/$/
+                jslint_rgx_slash_star_or_slash
             );
             if (jj >= 0) {
 
@@ -2090,13 +2167,7 @@ function jslint_phase2_lex(state) {
 
 // Uncompleted work comment.
 
-        if (
-            !option_dict.devel
-            && (
-                // rx_todo
-                /\b(?:todo|TO\s?DO|HACK)\b/
-            ).test(snippet)
-        ) {
+        if (!option_dict.devel && jslint_rgx_todo.test(snippet)) {
 
 // test_cause:
 // ["//todo", "lex_comment", "todo_comment", "(comment)", 1] //jslint-quiet
@@ -2108,10 +2179,7 @@ function jslint_phase2_lex(state) {
 
         [
             the_comment.directive, body
-        ] = Array.from(snippet.match(
-            // rx_directive
-            /^(jslint|property|global)\s+(.*)$/
-        ) || []).slice(1);
+        ] = Array.from(snippet.match(jslint_rgx_directive) || []).slice(1);
         if (the_comment.directive === undefined) {
             return the_comment;
         }
@@ -2133,10 +2201,12 @@ function jslint_phase2_lex(state) {
 // Lex/loop through each directive in /*...*/
 
         ii = 0;
-        body.replace((
-            // rx_directive_part
-            /([a-zA-Z$_][a-zA-Z0-9$_]*)(?::\s*(true|false))?,?\s*|$/g
-        ), function (match0, key, val, jj) {
+        body.replace(jslint_rgx_directive_part, function (
+            match0,
+            key,
+            val,
+            jj
+        ) {
             if (ii !== jj) {
 
 // test_cause:
@@ -2210,13 +2280,7 @@ function jslint_phase2_lex(state) {
 // string.
 
         while (true) {
-            match = line_source.match(
-
-// Vim-hack - vim-editor has trouble parsing '`' in regexp
-
-                // rx_mega
-                /[\u0060\\]|\$\{/
-            ) || {
+            match = line_source.match(jslint_rgx_mega) || {
                 "0": "",
                 index: 0
             };
@@ -2293,12 +2357,16 @@ function jslint_phase2_lex(state) {
 
     function lex_number() {
         let prefix = snippet;
+
+// PR-390 - Add numeric-separator check.
+
+        check_numeric_separator(prefix, column - prefix.length);
         char_after();
         switch (prefix === "0" && char) {
         case "b":
         case "o":
         case "x":
-            read_digits(char);
+            read_digits(char, mode_digits_numeric_separator);
 
 // PR-351 - Ignore BigInt suffix 'n'.
 
@@ -2308,14 +2376,14 @@ function jslint_phase2_lex(state) {
             break;
         default:
             if (char === ".") {
-                read_digits("d");
+                read_digits("d", mode_digits_numeric_separator);
             }
             if (char === "E" || char === "e") {
                 char_after(char);
                 if (char !== "+" && char !== "-") {
                     char_before();
                 }
-                read_digits("d");
+                read_digits("d", mode_digits_numeric_separator);
             }
         }
 
@@ -2585,7 +2653,7 @@ function jslint_phase2_lex(state) {
                     }
                     break;
                 case "{":
-                    if (read_digits("d", true) === 0) {
+                    if (read_digits("d", mode_digits_empty_string) === 0) {
 
 // test_cause:
 // ["aa=/aa{/", "lex_regexp_group", "expected_a_before_b", ",", 8]
@@ -2598,7 +2666,7 @@ function jslint_phase2_lex(state) {
 // ["aa=/.{,/", "lex_regexp_group", "comma", "", 0]
 
                         test_cause("comma");
-                        read_digits("d", true);
+                        read_digits("d", mode_digits_empty_string);
                     }
                     if (char_after("}") === "?") {
 
@@ -2891,7 +2959,7 @@ function jslint_phase2_lex(state) {
                 }
             }
             from = column;
-            match = line_source.match(rx_token);
+            match = line_source.match(jslint_rgx_token);
 
 // match[1] token
 // match[2] whitespace
@@ -3274,41 +3342,48 @@ import moduleHttps from "https";
         return true;
     }
 
-    function read_digits(base, quiet) {
+    function read_digits(base, mode) {
         let digits = line_source.match(
             base === "b"
-            ? (
-                // rx_bits
-                /^[01]*/
-            )
+            ? jslint_rgx_digits_bits
             : base === "o"
-            ? (
-                // rx_octals
-                /^[0-7]*/
-            )
+            ? jslint_rgx_digits_octals
             : base === "x"
-            ? (
-                // rx_hexs
-                /^[0-9A-F]*/i
-            )
-            : (
-                // rx_digits
-                /^[0-9]*/
-            )
+            ? jslint_rgx_digits_hexs
+            : jslint_rgx_digits_decimals
         )[0];
-        let length = digits.length;
-        if (!quiet && length === 0) {
+        if (
+            (mode !== mode_digits_empty_string && digits.length === 0)
+            || digits[0] === "_"
+        ) {
 
 // test_cause:
 // ["0x", "read_digits", "expected_digits_after_a", "0x", 2]
+// ["0x_", "read_digits", "expected_digits_after_a", "0x", 2]
 
             warn_at("expected_digits_after_a", line, column, snippet);
         }
-        column += length;
-        line_source = line_source.slice(length);
+
+// PR-390 - Add numeric-separator check.
+
+        if (mode === mode_digits_numeric_separator) {
+            check_numeric_separator(digits, column);
+        } else if (digits.indexOf("_") >= 0) {
+
+// test_cause:
+// ["\"\\u{1_2}\"", "read_digits", "illegal_num_separator", "", 6]
+
+            warn_at(
+                "illegal_num_separator",
+                line,
+                column + digits.indexOf("_") + 1
+            );
+        }
+        column += digits.length;
+        line_source = line_source.slice(digits.length);
         snippet += digits;
         char_after();
-        return length;
+        return digits.length;
     }
 
     function read_line() {
@@ -3379,6 +3454,7 @@ import moduleHttps from "https";
             test_cause("line_disable");
             line_source = "";
         }
+        // jslint_rgx_tab
         if (line_source.indexOf("\t") >= 0) {
             if (!option_dict.white) {
 
@@ -3387,10 +3463,7 @@ import moduleHttps from "https";
 
                 warn_at("use_spaces", line, line_source.indexOf("\t") + 1);
             }
-            line_source = line_source.replace((
-                // rx_tab
-                /\t/g
-            ), " ");
+            line_source = line_source.replace(jslint_rgx_tab, " ");
         }
         if (!option_dict.white && line_source.endsWith(" ")) {
 
@@ -3564,9 +3637,6 @@ function jslint_phase3_parse(state) {
     let catchage = catch_stack[0];      // The current catch-block.
     let functionage = token_global;     // The current function.
     let mode_var;               // "var" if using var; "let" if using let.
-    let rx_identifier = (
-        /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/
-    );
     let token_ii = 0;           // The number of the next token.
     let token_now = token_global;       // The current token being examined in
                                         // ... the parse.
@@ -3583,7 +3653,7 @@ function jslint_phase3_parse(state) {
             anon = token_now.id;
         } else if (
             token_now.id === "(string)"
-            && rx_identifier.test(token_now.value)
+            && jslint_rgx_identifier.test(token_now.value)
         ) {
             anon = token_now.value;
         }
@@ -4233,7 +4303,7 @@ function jslint_phase3_parse(state) {
         let the_subscript = parse_expression(0);
         if (the_subscript.id === "(string)" || the_subscript.id === "`") {
             name = survey(the_subscript);
-            if (rx_identifier.test(name)) {
+            if (jslint_rgx_identifier.test(name)) {
 
 // test_cause:
 // ["aa[`aa`]", "infix_lbracket", "subscript_a", "aa", 4]
@@ -4594,13 +4664,7 @@ function jslint_phase3_parse(state) {
         let negative;
         switch (token_nxt.id) {
         case "(number)":
-            if (!(
-
-// https://datatracker.ietf.org/doc/html/rfc7159#section-6
-// number = [ minus ] int [ frac ] [ exp ]
-
-                /^-?(?:0|[1-9]\d*?)(?:\.\d*?)?(?:[eE][+\-]?\d+?)?$/
-            ).test(token_nxt.value)) {
+            if (!jslint_rgx_json_number.test(token_nxt.value)) {
 
 // test_cause:
 // ["[-.0]", "parse_json", "unexpected_a", ".", 3]
@@ -6100,10 +6164,7 @@ function jslint_phase3_parse(state) {
         advance("from");
         advance("(string)");
         the_import.import = token_now;
-        if (!(
-            // rx_module
-            /^[a-zA-Z0-9_$:.@\-\/]+$/
-        ).test(token_now.value)) {
+        if (!jslint_rgx_module.test(token_now.value)) {
 
 // test_cause:
 // ["import aa from \"!aa\"", "stmt_import", "bad_module_name_a", "!aa", 16]
@@ -6714,13 +6775,13 @@ function jslint_phase3_parse(state) {
 
         if (id === "(string)") {
             id = name.value;
-            if (!rx_identifier.test(id)) {
+            if (!jslint_rgx_identifier.test(id)) {
                 return id;
             }
         } else if (id === "`") {
             if (name.value.length === 1) {
                 id = name.value[0].value;
-                if (!rx_identifier.test(id)) {
+                if (!jslint_rgx_identifier.test(id)) {
                     return id;
                 }
             }
@@ -6753,10 +6814,7 @@ function jslint_phase3_parse(state) {
             } else if (
                 !option_dict.name
                 && name.identifier
-                && (
-                    // rx_weird_property
-                    /^_|\$|Sync$|_$/m
-                ).test(id)
+                && jslint_rgx_weird_property.test(id)
             ) {
 
 // test_cause:
@@ -7510,10 +7568,7 @@ function jslint_phase4_walk(state) {
                 test_cause("cack");
                 cack = !cack;
             }
-            if ((
-                // rx_cap
-                /^[A-Z]/
-            ).test(left.name.id) !== cack) {
+            if (jslint_rgx_cap.test(left.name.id) !== cack) {
                 if (the_new !== undefined) {
 
 // test_cause:
@@ -7690,6 +7745,11 @@ function jslint_phase4_walk(state) {
             || thing.expression[0].constant === true
             || is_equal(thing.expression[1], thing.expression[2])
         ) {
+
+// test_cause:
+// ["let aa=(aa?`${0}`:`${0}`);", "post_t", "unexpected_a", "?", 11]
+// ["let aa=(aa?`0`:`0`);", "post_t", "unexpected_a", "?", 11]
+
             warn("unexpected_a", thing);
         } else if (is_equal(thing.expression[0], thing.expression[1])) {
 
@@ -9382,6 +9442,9 @@ body {
         : "global"
     );
     if (global.length + froms.length + exports.length > 0) {
+        if (functions.length === 0) {
+            html += "<br>\n";
+        }
         html += "<div class=\"level level0\">\n";
         html += detail(module, global);
         html += detail("import from", froms);
@@ -9546,14 +9609,14 @@ function jstestIt(description, testFunction, mode) {
     }));
 }
 
-function jstestOnExit(exitCode, processExit, countFailed) {
+function jstestOnExit(exitCode, mode) {
 
 // This function will on process-exit, print test-report
 // and exit with non-zero exit-code if any test failed.
 
     let message = (
         (
-            (jstestCountFailed || countFailed)
+            (jstestCountFailed || mode === "testsFailed")
             ? "\n\u001b[31m"
             : "\n\u001b[32m"
         )
@@ -9561,11 +9624,10 @@ function jstestOnExit(exitCode, processExit, countFailed) {
         + "  tests failed - " + jstestCountFailed + "\n"
         + "\u001b[39m"
     );
-    if (!processExit) {
+    if (mode !== "testsFailed") {
         console.error(message);
-        processExit = process.exit;
     }
-    processExit(exitCode || jstestCountFailed);
+    process.exitCode = exitCode || jstestCountFailed;
     return message;
 }
 

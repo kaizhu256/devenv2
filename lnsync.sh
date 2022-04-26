@@ -2,40 +2,36 @@
 # sh ~/Documents/devenv/lnsync.sh
 {(set -e
     # [ -d "$HOME/Documents/devenv" ] && cd "$HOME/Documents/devenv"
-    cd "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+    DIR_DEVENV="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+    FILE=""
+    FILE_DEVENV=""
+    FILE_HOME=""
+    mkdir -p "$HOME/.vim"
     # ln ~
     for FILE in \
         .vimrc \
         jslint.mjs \
-        jslint_ci.sh
+        jslint_ci.sh \
+        jslint_wrapper_vim.vim
     do
-        FILE2="$HOME/$FILE"
-        if [ -f "$FILE2" ]
+        FILE_DEVENV="$DIR_DEVENV/$FILE"
+        FILE_HOME="$HOME/$FILE"
+        case "$FILE" in
+        jslint_wrapper_vim.vim)
+            FILE_HOME="$HOME/.vim/$FILE"
+            ;;
+        esac
+        if [ -f "$FILE_HOME" ]
         then
-            ln -f "$FILE2" "$FILE"
+            ln -f "$FILE_HOME" "$FILE_DEVENV"
         else
-            ln -f "$FILE" "$FILE2"
+            ln -f "$FILE_DEVENV" "$FILE_HOME"
+        fi
+        if [ -f "$FILE" ]
+        then
+            ln -f "$FILE_DEVENV" "$FILE" || true
         fi
     done
-    # ln ~/.vim
-    mkdir -p "$HOME/.vim"
     ln -f "$HOME/jslint.mjs" "$HOME/.vim/jslint.mjs"
-    for FILE in jslint_wrapper_vim.vim
-    do
-        FILE2="$HOME/.vim/$FILE"
-        if [ -f "$FILE2" ]
-        then
-            ln -f "$FILE2" "$FILE"
-        else
-            ln -f "$FILE" "$FILE2"
-        fi
-    done
-    # ln ~/Documents/jslint
-    if [ -d "$HOME/Documents/jslint" ]
-    then
-        ln -f "$HOME/.vim/jslint_wrapper_vim.vim" "$HOME/Documents/jslint/jslint_wrapper_vim.vim"
-        ln -f "$HOME/jslint.mjs" "$HOME/Documents/jslint/jslint.mjs"
-        ln -f "$HOME/jslint_ci.sh" "$HOME/Documents/jslint/jslint_ci.sh"
-    fi
     git diff
 )}

@@ -4,6 +4,8 @@
 *.lock
 *.log
 *.pyc
+*.tgz
+*.vsix
 *~
 .*
 _*
@@ -16,3 +18,4 @@ undefined
 !.gitconfig
 !.github
 !.gitignore
+!.npmignore

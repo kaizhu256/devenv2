@@ -24,6 +24,10 @@ set softtabstop=2
 "" https://vimhelp.org/options.txt.html#%27statusline%27
 set statusline=%F%m%r%h%w\ %y\ %l:%c\ %L\ 0x%B
 set tabstop=4
+"" tell it to use an undo file
+set undofile
+"" set a directory to store the undo history
+set undodir=$HOME/.vimundo/
 
 augroup My
     autocmd!
@@ -232,6 +236,11 @@ if filereadable(expand('~/.vimrc2'))
     source ~/.vimrc2
 endif
 
+"" source ~/.vim/jslint_wrapper_vim.vim
+if filereadable(expand('~/.vim/jslint_wrapper_vim.vim'))
+    source ~/.vim/jslint_wrapper_vim.vim
+endif
+
 
 "" this function will cpplint file of current buffer
 "" before using, please save cpplint.py to ~/.vim/cpplint.py, e.g.:
@@ -283,8 +292,6 @@ endfunction
 
 "" create vim-command ":SaveAndCpplint"
 command! -nargs=* -bang SaveAndCpplint call SaveAndCpplint("<bang>")
-
-source ~/.vim/jslint_wrapper_vim.vim
 
 "" this function will jslint the file of current buffer after saving it.
 "" before using, please save jslint.mjs to ~/.vim/jslint.mjs, e.g.:

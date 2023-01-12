@@ -4,6 +4,8 @@
 *.lock
 *.log
 *.pyc
+*.tgz
+*.vsix
 *~
 .*
 _*
@@ -17,3 +19,4 @@ undefined
 !.github
 !.gitignore
 !.npmignore
+# jslint .gitignore end

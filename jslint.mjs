@@ -94,6 +94,7 @@
 
 /*jslint beta, node*/
 /*property
+    toLocaleString,
     JSLINT_BETA, NODE_V8_COVERAGE, a, all, argv, arity, artifact,
     assertErrorThrownAsync, assertJsonEqual, assertOrThrow, assign, async, b,
     beta, bitwise, block, body, browser, c, calls, catch, catch_list,
@@ -165,7 +166,7 @@ let jslint_charset_ascii = (
     + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
     + "`abcdefghijklmnopqrstuvwxyz{|}~\u007f"
 );
-let jslint_edition = "v2022.11.1-beta";
+let jslint_edition = "v2023.1.1-beta";
 let jslint_export;                      // The jslint object to be exported.
 let jslint_fudge = 1;                   // Fudge starting line and starting
                                         // ... column to 1.
@@ -2037,13 +2038,6 @@ async function jslint_cli({
         });
         return;
     }
-
-// PR-349 - Detect cli-option --mode-vim-plugin.
-
-    mode_wrapper_vim = (
-        process_argv.slice(2).indexOf("--mode-vim-plugin") >= 0
-        || mode_wrapper_vim
-    );
 
 // Normalize file relative to process.cwd().
 
@@ -4192,7 +4186,11 @@ function jslint_phase3_parse(state) {
             }
         }).reduce(function (aa, bb) {
             if (
-                !option_dict.unordered
+
+// PR-419 - Hide warning about unordered case-statements behind beta-flag.
+
+                option_dict.beta
+                && !option_dict.unordered
                 && aa && bb
                 && (
                     aa.order > bb.order
@@ -9984,6 +9982,10 @@ function jstestOnExit(exitCode, mode) {
         )
         + "  tests total  - " + jstestCountTotal + "\n"
         + "  tests failed - " + jstestCountFailed + "\n"
+        + "\n"
+        + "  time finished - "
+        + Number(Date.now() - jstestTimeStart).toLocaleString()
+        + " ms\n"
         + "\u001b[39m"
     );
     if (mode !== "testsFailed") {

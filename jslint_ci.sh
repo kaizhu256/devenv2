@@ -374,25 +374,10 @@ import moduleChildProcess from "child_process";
         "branch-$GITHUB_BRANCH0/README.md"
     git status
     git commit -am "update dir branch-$GITHUB_BRANCH0" || true
-    # if branch-gh-pages has more than 50 commits,
-    # then backup and squash commits
-    if [ "$(git rev-list --count gh-pages)" -gt 50 ]
-    then
-        # backup
-        git push origin -f gh-pages:gh-pages-backup
-        # squash commits
-        git checkout --orphan squash1
-        git commit --quiet -am squash || true
-        # reset branch-gh-pages to squashed-commit
-        git push . -f squash1:gh-pages
-        git checkout gh-pages
-        # force-push squashed-commit
-        git push origin -f gh-pages
-    fi
+    # git push
+    shGithubPushBackupAndSquash origin gh-pages 50
     # list files
     shGitLsTree
-    # push branch-gh-pages
-    git push origin gh-pages
     # validate http-links
     (set -e
         cd "branch-$GITHUB_BRANCH0"
@@ -426,7 +411,9 @@ globalThis.assert(
 import moduleFs from "fs";
 (async function () {
     let fileDict = {};
+    let fileMain;
     let fileModified;
+    let packageJson;
     let versionBeta;
     let versionMaster;
     await Promise.all([
@@ -435,6 +422,13 @@ import moduleFs from "fs";
         "package.json"
     ].map(async function (file) {
         fileDict[file] = await moduleFs.promises.readFile(file, "utf8");
+        if (file === "package.json") {
+            packageJson = JSON.parse(fileDict[file]);
+            fileMain = packageJson.module || packageJson.main || "package.json";
+            fileDict[fileMain] = (
+                await moduleFs.promises.readFile(fileMain, "utf8")
+            );
+        }
     }));
     Array.from(fileDict["CHANGELOG.md"].matchAll(
         /\n\n# v(\d\d\d\d\.\d\d?\.\d\d?(-.*?)?)\n/g
@@ -455,6 +449,12 @@ import moduleFs from "fs";
             src: fileDict["package.json"].replace((
                 /    "version": "\d\d\d\d\.\d\d?\.\d\d?(?:-.*?)?"/
             ), `    "version": "${versionBeta}"`)
+        }, {
+            file: fileMain,
+            // update version
+            src: fileDict[fileMain].replace((
+                /^let version = ".*?";$/m
+            ), `let version = "v${versionBeta}";`)
         }
     ].map(async function ({
         file,
@@ -578,6 +578,278 @@ shCiPre() {(set -e
     return
 )}
 
+shCryptoJweDecryptEncrypt() {(set -e
+# this function will decrypt/encrypt file using jwe and $MY_GITHUB_TOKEN
+# example use:
+# shCryptoJweDecryptEncrypt decrypt .my_secret.json.encrypted .my_secret.json
+# shCryptoJweDecryptEncrypt encrypt .my_secret.json
+# shGitLsTree | sort -rk4 # sort by size
+    shGithubTokenExport
+    node --input-type=module --eval '
+import assert from "assert";
+import moduleFs from "fs";
+import {
+    webcrypto
+} from "crypto";
+
+let {
+    MY_GITHUB_TOKEN
+} = process.env;
+
+async function cryptoJweDecrypt({
+    fileDecrypted,
+    fileEncrypted,
+    mockResult
+}) {
+
+// This function will:
+// 1. Parse 256-bit jwk-formatted key-encryption-key <jwkKek>
+// 2. Key-unwrap 256-bit content-encryption-key (cek) in <jweCompact>
+//    using <jwkKek>.
+// 3. Decrypt ciphertext with cek, iv, tag in <jweCompact>
+
+    let cek;
+    let header;
+    let iv;
+    let jweCompact;
+    let jwkKek;
+    let kek;
+    let plaintext;
+    let tag;
+    function base64urlFromBuffer(buf) {
+        return Buffer.from(buf).toString("base64").replace((
+            /\+/g
+        ), "-").replace((
+            /\//g
+        ), "_").replace((
+            /\=/g
+        ), "");
+    }
+    if (mockResult) {
+        return mockResult;
+    }
+
+// 1. Parse 256-bit jwk-formatted key-encryption-key <jwkKek>
+
+    jwkKek = await webcrypto.subtle.digest("SHA-256", MY_GITHUB_TOKEN);
+    jwkKek = JSON.stringify({
+        k: base64urlFromBuffer(jwkKek),
+        kty: "oct"
+    });
+    jwkKek = JSON.parse(jwkKek);
+
+// 2. Key-unwrap 256-bit content-encryption-key (cek) in <jweCompact>
+//    using <jwkKek>.
+
+    jweCompact = await moduleFs.promises.readFile(fileEncrypted, "utf8");
+    jweCompact = jweCompact.replace((
+        /\s/g
+    ), "");
+    [
+        header,
+        cek,
+        iv,
+        plaintext,
+        tag
+    ] = jweCompact.replace((
+        /-/g
+    ), "+").replace((
+        /_/g
+    ), "/").split(".").map(function (elem) {
+        return Buffer.from(elem, "base64");
+    });
+    header = jweCompact.split(".")[0];
+    assert(
+        "eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2R0NNIn0" === header,
+        `cryptoJweDecrypt - invalid header - ${header}`
+    );
+    kek = await webcrypto.subtle.importKey(
+        "jwk",
+        jwkKek,
+        {
+            length: 256,
+            name: "AES-KW"
+        },
+        true,
+        [
+            "unwrapKey", "wrapKey"
+        ]
+    );
+    cek = await webcrypto.subtle.unwrapKey(
+        "raw",
+        cek,
+        kek,
+        "AES-KW",
+        "AES-GCM",
+        true,
+        [
+            "decrypt", "encrypt"
+        ]
+    );
+
+// 3. Decrypt ciphertext with cek, iv, tag in <jweCompact>
+
+    plaintext = await webcrypto.subtle.decrypt(
+        {
+            additionalData: header,
+            iv,
+            name: "AES-GCM",
+            tagLength: 128
+        },
+        cek,
+        Buffer.concat([
+            plaintext, tag
+        ])
+    );
+    plaintext = new TextDecoder().decode(plaintext);
+    if (fileDecrypted) {
+        await moduleFs.promises.writeFile(fileDecrypted, plaintext);
+    }
+    return plaintext;
+}
+
+async function cryptoJweEncrypt({
+    fileDecrypted
+}) {
+
+// This function will:
+// 1. Parse 256-bit jwk-formatted key-encryption-key <jwkKek>
+// 2. Create random 256-bit content-encryption-key (cek).
+// 3. Key-wrap cek with given <jwkKek>.
+// 4. Read plaintext from <fileDecrypted>.
+// 5. Encrypt plaintext with cek.
+// 6. Save all of above as jwe-compact-format to <fileDecrypted>.encrypted
+//
+// BASE64URL(UTF8(JWE Protected Header)) || . ||
+// BASE64URL(JWE Encrypted Key) || . ||
+// BASE64URL(JWE Initialization Vector) || . ||
+// BASE64URL(JWE Ciphertext) || . ||
+// BASE64URL(JWE Authentication Tag)
+
+    let cek;
+    let ciphertext;
+    let header;
+    let iv;
+    let jweCompact = [];
+    let jwkKek;
+    let kek;
+    let tag;
+    function base64urlFromBuffer(buf) {
+        return Buffer.from(buf).toString("base64").replace((
+            /\+/g
+        ), "-").replace((
+            /\//g
+        ), "_").replace((
+            /\=/g
+        ), "");
+    }
+
+// BASE64URL(UTF8(JWE Protected Header)) || . ||
+
+    header = base64urlFromBuffer(JSON.stringify({
+        alg: "A256KW",
+        enc: "A256GCM"
+    }));
+    jweCompact.push(header);
+
+// Use given jwkKek or read from file.
+
+    jwkKek = await webcrypto.subtle.digest("SHA-256", MY_GITHUB_TOKEN);
+    jwkKek = JSON.stringify({
+        k: base64urlFromBuffer(jwkKek),
+        kty: "oct"
+    });
+
+// 1. Parse 256-bit jwk-formatted key-encryption-key <jwkKek>
+
+    jwkKek = JSON.parse(jwkKek);
+    kek = await webcrypto.subtle.importKey(
+        "jwk",
+        jwkKek,
+        {
+            length: 256,
+            name: "AES-KW"
+        },
+        true,
+        [
+            "unwrapKey", "wrapKey"
+        ]
+    );
+    jwkKek = JSON.stringify({
+        k: jwkKek.k,
+        kty: jwkKek.kty
+    });
+
+// 2. Create random 256-bit content-encryption-key (cek).
+
+    cek = await webcrypto.subtle.generateKey(
+        {
+            length: 128,
+            name: "AES-GCM"
+        },
+        true,
+        [
+            "decrypt", "encrypt"
+        ]
+    );
+
+// 3. Key-wrap cek with given <jwkKek>.
+
+    jweCompact.push(base64urlFromBuffer(
+        await webcrypto.subtle.wrapKey("raw", cek, kek, "AES-KW")
+    ));
+
+// 4. Read plaintext from <fileDecrypted>.
+
+    ciphertext = await moduleFs.promises.readFile(fileDecrypted);
+
+// 5. Encrypt plaintext with cek.
+
+    iv = webcrypto.getRandomValues(new Uint8Array(12));
+    jweCompact.push(base64urlFromBuffer(iv));
+    ciphertext = await webcrypto.subtle.encrypt(
+        {
+            additionalData: header,
+            iv,
+            name: "AES-GCM",
+            tagLength: 128
+        },
+        cek,
+        ciphertext
+    );
+
+// 6. Save all of above as jwe-compact-format to <fileDecrypted>.encrypted
+
+    ciphertext = Buffer.from(ciphertext);
+    tag = ciphertext.slice(-16);
+    ciphertext = ciphertext.slice(0, -16);
+    jweCompact.push(base64urlFromBuffer(ciphertext).replace((
+        /.{72}/g
+    ), "$&\n"));
+    jweCompact.push(base64urlFromBuffer(tag));
+    jweCompact = jweCompact.join("\n.\n");
+    await moduleFs.promises.writeFile(
+        fileDecrypted + ".encrypted",
+        jweCompact + "\n"
+    );
+    return jweCompact;
+}
+
+(async function () {
+    if (process.argv[1] === "decrypt") {
+        await cryptoJweDecrypt({
+            fileDecrypted: process.argv[3],
+            fileEncrypted: process.argv[2]
+        });
+    } else {
+        await cryptoJweEncrypt({
+            fileDecrypted: process.argv[2]
+        });
+    }
+}());
+' "$@" # '
+)}
+
 shDiffFileFromDir() {(set -e
 # this function print diff of file $1 against same file in dir $2
     diff -u "$1" "$2/$1"
@@ -638,6 +910,11 @@ import moduleUrl from "url";
                 `\\b${UPSTREAM_GITHUB_IO}\\b`,
                 "g"
             ), GITHUB_GITHUB_IO);
+            if ((
+                /^http:\/\/(?:127\.0\.0\.1|localhost)[\/:]/
+            ).test(url)) {
+                return;
+            }
             if (url.startsWith("http://")) {
                 throw new Error(
                     `shDirHttplinkValidate - ${file} - insecure link - ${url}`
@@ -713,6 +990,11 @@ shGitCmdWithGithubToken() {(set -e
     local CMD
     local EXIT_CODE
     local URL
+    if [ ! "$MY_GITHUB_TOKEN" ]
+    then
+        git "$@"
+        return
+    fi
     printf "shGitCmdWithGithubToken $*\n"
     CMD="$1"
     shift
@@ -722,13 +1004,10 @@ shGitCmdWithGithubToken() {(set -e
     then
         URL="$(git config "remote.$URL.url")"
     fi
-    if [ "$MY_GITHUB_TOKEN" ]
-    then
-        URL="$(
-            printf "$URL" \
-            | sed -e "s|https://|https://x-access-token:$MY_GITHUB_TOKEN@|"
-        )"
-    fi
+    URL="$(
+        printf "$URL" \
+        | sed -e "s|https://|https://x-access-token:$MY_GITHUB_TOKEN@|"
+    )"
     EXIT_CODE=0
     # hide $MY_GITHUB_TOKEN in case of err
     git "$CMD" "$URL" "$@" 2>/dev/null || EXIT_CODE="$?"
@@ -885,7 +1164,7 @@ import modulePath from "path";
     let content = process.argv[2];
     let path = process.argv[1];
     let repo;
-    let responseText;
+    let responseBuf;
     let url;
     function httpRequest({
         method,
@@ -894,22 +1173,26 @@ import modulePath from "path";
         return new Promise(function (resolve) {
             moduleHttps.request(`${url}?ref=${branch}`, {
                 headers: {
-                    accept: "application/vnd.github.v3+json",
+                    accept: (
+                        content
+                        ? "application/vnd.github.v3+json"
+                        : "application/vnd.github.v3.raw"
+                    ),
                     authorization: `token ${process.env.MY_GITHUB_TOKEN}`,
                     "user-agent": "undefined"
                 },
                 method
             }, function (res) {
-                responseText = "";
-                res.setEncoding("utf8");
+                responseBuf = [];
                 res.on("data", function (chunk) {
-                    responseText += chunk;
+                    responseBuf.push(chunk);
                 });
                 res.on("end", function () {
+                    responseBuf = Buffer.concat(responseBuf);
                     moduleAssert(res.statusCode === 200, (
                         "shGithubFileUpload"
                         + `- failed to download/upload file ${url} - `
-                        + responseText
+                        + responseBuf.slice(0, 1024).toString()
                     ));
                     resolve();
                 });
@@ -925,7 +1208,7 @@ import modulePath from "path";
     if (!content) {
         await moduleFs.promises.writeFile(
             modulePath.basename(url),
-            Buffer.from(JSON.parse(responseText).content, "base64")
+            responseBuf
         );
         return;
     }
@@ -936,17 +1219,55 @@ import modulePath from "path";
             branch,
             content: content.toString("base64"),
             "message": `upload file ${path}`,
-            sha: JSON.parse(responseText).sha
+            sha: JSON.parse(responseBuf).sha
         })
     });
 }());
 ' "$@" # '
 )}
 
+shGithubPushBackupAndSquash() {
+# this function will, if $GIT_BRANCH has more than $COMMITS commits,
+# then backup, squash, force-push,
+# else normal-push
+    local GIT_REPO="$1"
+    shift
+    local GIT_BRANCH="$1"
+    shift
+    local COMMITS="$1"
+    shift
+    local COMMIT_MESSAGE="squash - $(git log "$GIT_BRANCH" -1 --pretty=%B)"
+    if [ "$(git rev-list --count "$GIT_BRANCH")" -gt "$COMMITS" ]
+    then
+        # backup
+        shGitCmdWithGithubToken push "$GIT_REPO" \
+            "$GIT_BRANCH:$GIT_BRANCH-backup" -f
+        # squash commits
+        git checkout --orphan squash1
+        git commit --quiet -am "$COMMIT_MESSAGE" || true
+        # reset branc to squashed-commit
+        git push . "squash1:$GIT_BRANCH" -f
+        git checkout "$GIT_BRANCH"
+        # force-push squashed-commit
+        shGitCmdWithGithubToken push "$GIT_REPO" "$GIT_BRANCH" -f
+    else
+        shGitCmdWithGithubToken push "$GIT_REPO" "$GIT_BRANCH"
+    fi
+}
+
+shGithubTokenExport() {
+# this function will export $MY_GITHUB_TOKEN from file
+    if [ ! "$MY_GITHUB_TOKEN" ]
+    then
+        export MY_GITHUB_TOKEN="$(cat .my_github_token)"
+    fi
+}
+
 shGithubWorkflowDispatch() {(set -e
 # this function will trigger-workflow to ci-repo $1 for owner.repo.branch $2
 # example use:
 # shGithubWorkflowDispatch octocat/my_ci octocat/my_project/master
+    shGithubTokenExport
     curl "https://api.github.com/repos/$1"\
 "/actions/workflows/ci.yml/dispatches" \
         -H "accept: application/vnd.github.v3+json" \
@@ -3126,7 +3447,7 @@ shRunWithScreenshotTxt() {(set -e
 # https://www.cnx-software.com/2011/09/22/how-to-convert-a-command-line-result-into-an-image-in-linux/
     local EXIT_CODE
     EXIT_CODE=0
-    export SCREENSHOT_SVG="$1"
+    local SCREENSHOT_SVG="$1"
     shift
     printf "0\n" > "$SCREENSHOT_SVG.exit_code"
     printf "shRunWithScreenshotTxt - ($* 2>&1)\n" 1>&2
@@ -3217,6 +3538,122 @@ ${result}
     return "$EXIT_CODE"
 )}
 
+shSecretCryptoDecrypt() {(set -e
+# this function will decrypt file using jwe and $MY_GITHUB_TOKEN
+    shCryptoJweDecryptEncrypt decrypt .my_secret.json.encrypted .my_secret.json
+    chmod 600 .my_secret.json
+)}
+
+shSecretCryptoEncrypt() {(set -e
+# this function will encrypt file using jwe and $MY_GITHUB_TOKEN
+    shCryptoJweDecryptEncrypt encrypt .my_secret.json
+)}
+
+shSecretFileGet() {(set -e
+# this function will open json-file, and write file-key $1 to file $2
+    node --input-type=module --eval '
+import moduleFs from "fs";
+import modulePath from "path";
+async function fsWriteFileWithParents(pathname, data) {
+
+// This function will write <data> to <pathname> and lazy-mkdirp if necessary.
+
+    // await moduleFsInit();
+
+// Try writing to pathname.
+
+    try {
+        await moduleFs.promises.writeFile(pathname, data);
+    } catch (ignore) {
+
+// Lazy mkdirp.
+
+        await moduleFs.promises.mkdir(modulePath.dirname(pathname), {
+            recursive: true
+        });
+
+// Retry writing to pathname.
+
+        await moduleFs.promises.writeFile(pathname, data);
+    }
+    // console.error("wrote file " + pathname);
+}
+(async function () {
+    let data;
+    let fileJson;
+    let fileKey;
+    let fileWrite;
+    fileJson = ".my_secret.json";
+    fileKey = process.argv[1];
+    fileWrite = process.argv[2];
+    data = JSON.parse(
+        await moduleFs.promises.readFile(fileJson)
+    );
+    data = Buffer.from(data[fileKey], "base64");
+    await fsWriteFileWithParents(fileWrite, data);
+    await moduleFs.promises.chmod(fileWrite, "600");
+}());
+' "$@" # '
+)}
+
+shSecretFileSet() {(set -e
+# this function will open json-file, and set file-key $1 to it
+    node --input-type=module --eval '
+import moduleFs from "fs";
+(async function () {
+    let data;
+    let fileJson;
+    let fileKey;
+    fileJson = ".my_secret.json";
+    fileKey = process.argv[1];
+    data = JSON.parse(
+        await moduleFs.promises.readFile(fileJson)
+    );
+    data[fileKey] = Buffer.from(
+        await moduleFs.promises.readFile(fileKey)
+    ).toString("base64");
+    await moduleFs.promises.writeFile(
+        fileJson,
+        JSON.stringify(data, undefined, 4) + "\n"
+    );
+}());
+' "$@" # '
+)}
+
+shSecretVarExport() {
+# this function will open json-file, and export env key/val items
+    eval "$(node --input-type=module --eval '
+import moduleFs from "fs";
+(async function () {
+    let data;
+    data = JSON.parse(
+        await moduleFs.promises.readFile(".my_secret.json")
+    );
+    data = Object.entries(data);
+    data = data.filter(function ([
+        key
+    ]) {
+        return key.startsWith("EXPORT_");
+    });
+    data = data.map(function ([
+        key, val
+    ]) {
+        return (
+            "export "
+            + key.replace("EXPORT_", "")
+            + "="
+            + "\u0027"
+            + val.replace((
+                /\u0027/g
+            ), `\u0027"\u0027"\u0027`)
+            + "\u0027\n"
+        );
+    }).join("");
+    console.log(data);
+}());
+' "$@")" # '
+}
+
 shCiMain() {(set -e
 # this function will run $@
     if [ "$1" = "" ]
@@ -3224,7 +3661,7 @@ shCiMain() {(set -e
         return
     fi
     # run "$@" with winpty
-    export CI_UNAME="${CI_UNAME:-$(uname)}"
+    local CI_UNAME="${CI_UNAME:-$(uname)}"
     case "$CI_UNAME" in
     MSYS*)
         if [ ! "$CI_WINPTY" ] && [ "$1" != shHttpFileServer ]
@@ -3236,7 +3673,6 @@ shCiMain() {(set -e
         ;;
     esac
     # run "$@"
-    export NODE_OPTIONS="--unhandled-rejections=strict"
     if [ -f ./.ci.sh ]
     then
         . ./.ci.sh
@@ -3245,6 +3681,6 @@ shCiMain() {(set -e
 )}
 
 # init ubuntu .bashrc
-shBashrcDebianInit || return "$?"
+shBashrcDebianInit || exit "$?"
 
 shCiMain "$@"

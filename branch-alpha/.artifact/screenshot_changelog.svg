@@ -1,0 +1,65 @@
+<svg height="228" width="800" xmlns="http://www.w3.org/2000/svg">
+<rect height="228" fill="#222" width="800"></rect>
+<text
+    fill="#7f7"
+    font-family="consolas, menlo, monospace"
+    font-size="14"
+    xml:space="preserve"
+>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="32"
+># Changelog                                                                                      </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="54"
+>                                                                                                 </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="76"
+># Todo                                                                                           </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="98"
+>- add ci                                                                                         </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="120"
+>- none                                                                                           </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="142"
+>                                                                                                 </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="164"
+># v2023.1.1-beta                                                                                 </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="186"
+>- rename repository from devenv to devenv2                                                       </tspan>
+<tspan
+    lengthAdjust="spacingAndGlyphs"
+    textLength="768"
+    x="10"
+    y="208"
+>- rename file lnsync.sh to devenv.sh                                                             </tspan>
+
+</text>
+</svg>

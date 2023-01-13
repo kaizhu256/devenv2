@@ -2,6 +2,10 @@
     "counter": 1,
     "fileCount": 16,
     "name": "devenv2",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/devenv2"
+    },
     "scripts": {
         "test": "sh jslint_ci.sh shCiBase"
     },

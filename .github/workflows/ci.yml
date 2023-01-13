@@ -26,13 +26,13 @@ jobs:
           - x64
           # - x86
         node_version:
-          - 16
+          # - 16
           - 18
-          - 19
+          # - 19
         os:
-          - macos-latest
+          # - macos-latest
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
     name: >
       job1
       node

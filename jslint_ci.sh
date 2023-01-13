@@ -520,6 +520,7 @@ import moduleFs from "fs";
     await moduleFs.promises.writeFile("README.md", data);
 }());
 ' "$@" # '
+    mkdir -p .artifact
     shCiBaseCustom
     git diff
 )}

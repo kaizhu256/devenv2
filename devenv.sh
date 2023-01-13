@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # sh one-liner
-# (curl -o /tmp/devenv.sh -s https://raw.githubusercontent.com/kaizhu256/devenv/alpha/devenv.sh && sh /tmp/devenv.sh shDevenvVmInit force)
+# (curl -o /tmp/devenv.sh -s https://raw.githubusercontent.com/kaizhu256/devenv2/alpha/devenv.sh && sh /tmp/devenv.sh shDevenvVmInit force)
 
 shDevenvSync() {(set -e
 # this function will sync devenv in current dir
@@ -20,7 +20,7 @@ shDevenvSync() {(set -e
         jslint_ci.sh \
         jslint_wrapper_vim.vim
     do
-        FILE_DEVENV="$HOME/devenv/$FILE"
+        FILE_DEVENV="$HOME/devenv2/$FILE"
         FILE_HOME="$HOME/$FILE"
         case "$FILE" in
         jslint_wrapper_vim.vim)
@@ -33,7 +33,7 @@ shDevenvSync() {(set -e
         else
             ln -f "$FILE_DEVENV" "$FILE_HOME"
         fi
-        if [ -f "$FILE" ] && [ "$PWD" != "$HOME/devenv" ]
+        if [ -f "$FILE" ] && [ "$PWD" != "$HOME/devenv2" ]
         then
             ln -f "$FILE_DEVENV" "$FILE" || true
         fi
@@ -67,55 +67,49 @@ shDevenvSync() {(set -e
     ), "$$"));
     await moduleFs.promises.writeFile(file2, data2);
 }());
-' "$HOME/devenv/.gitignore" .gitignore # '
+' "$HOME/devenv2/.gitignore" .gitignore # '
     #
     git --no-pager diff
 )}
 
-shDevenvVmInit() {(set -e
-# this function will init devenv in vm-environment
+shDevenvInit() {(set -e
+# this function will init devenv in current environment
     local FILE
     local MODE_FORCE
     if [ "$1" = force ]
     then
         MODE_FORCE=1
+        shift
     fi
-    shift
-    if [ -f "$HOME/jslint_ci.sh" ] && [ ! "$MODE_FORCE" ]
-    then
-        return
-    fi
-    # init jslint_ci.sh
-    for FILE in \
-        .screenrc \
-        .vimrc \
-        jslint_ci.sh
-    do
-        curl -s -o "$HOME/$FILE" \
-        "https://raw.githubusercontent.com/kaizhu256/devenv/alpha/$FILE"
-    done
     cd "$HOME"
+    # init jslint_ci.sh
+    for FILE in .screenrc .vimrc jslint_ci.sh
+    do
+        if [ ! -f "$FILE" ] || [ "$MODE_FORCE" ]
+        then
+            curl -s -o "$FILE" \
+"https://raw.githubusercontent.com/kaizhu256/devenv2/alpha/$FILE"
+        fi
+    done
     . ./jslint_ci.sh
     # init devenv
     if (git --version >/dev/null 2>&1)
     then
-        if [ "$MODE_FORCE" ]
+        if [ ! -d devenv2 ] || [ "$MODE_FORCE" ]
         then
-            rm -rf "$HOME/devenv"
+            rm -rf devenv2
+            git clone https://github.com/kaizhu256/devenv2 \
+                --branch=alpha --single-branch
+            . devenv2/devenv.sh
+            shDevenvSync
         fi
-        git clone https://github.com/kaizhu256/devenv \
-            --branch=alpha --single-branch
-        . "$HOME/devenv/devenv.sh"
-        shDevenvSync
     fi
     # init .bashrc
     if [ ! -f .bashrc ]
     then
         touch .bashrc
     fi
-    for FILE in \
-        "$HOME/jslint_ci.sh" \
-        "$HOME/devenv/devenv.sh"
+    for FILE in jslint_ci.sh devenv2/devenv.sh
     do
         if [ -f "$FILE" ] && ! (grep -q "^. $FILE$" .bashrc)
         then

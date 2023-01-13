@@ -4,7 +4,7 @@
     "name": "devenv2",
     "repository": {
         "type": "git",
-        "url": "https://github.com/kaizhu256/devenv2"
+        "url": "https://github.com/kaizhu256/devenv2.git"
     },
     "scripts": {
         "test": "sh jslint_ci.sh shCiBase"

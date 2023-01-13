@@ -1,7 +1,7 @@
 {
     "counter": 1,
     "fileCount": 15,
-    "name": "my_ci",
+    "name": "devenv2",
     "scripts": {
         "test": "sh jslint_ci.sh shCiBase"
     },

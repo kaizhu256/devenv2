@@ -3,7 +3,53 @@
 # sh one-liner
 # (curl -o /tmp/devenv.sh -s https://raw.githubusercontent.com/kaizhu256/devenv2/alpha/devenv.sh && sh /tmp/devenv.sh shDevenvVmInit force)
 
-shDevenvSync() {(set -e
+shDevenvInit() {(set -e
+# this function will init devenv in current environment
+    local FILE
+    local MODE_FORCE
+    if [ "$1" = force ]
+    then
+        MODE_FORCE=1
+        shift
+    fi
+    cd "$HOME"
+    # init jslint_ci.sh
+    for FILE in .screenrc .vimrc jslint_ci.sh
+    do
+        if [ ! -f "$FILE" ] || [ "$MODE_FORCE" ]
+        then
+            curl -s -o "$FILE" \
+"https://raw.githubusercontent.com/kaizhu256/devenv2/alpha/$FILE"
+        fi
+    done
+    . ./jslint_ci.sh
+    # init devenv
+    if (git --version >/dev/null 2>&1)
+    then
+        if [ ! -d devenv2 ] || [ "$MODE_FORCE" ]
+        then
+            rm -rf devenv2
+            git clone https://github.com/kaizhu256/devenv2 \
+                --branch=alpha --single-branch
+            . devenv2/devenv.sh
+            shDevenvUpdate
+        fi
+    fi
+    # init .bashrc
+    if [ ! -f .bashrc ]
+    then
+        touch .bashrc
+    fi
+    for FILE in jslint_ci.sh devenv2/devenv.sh
+    do
+        if [ -f "$FILE" ] && ! (grep -q "^. $FILE$" .bashrc)
+        then
+            printf "\n. $FILE\n" >> .bashrc
+        fi
+    done
+)}
+
+shDevenvUpdate() {(set -e
 # this function will sync devenv in current dir
     if [ ! -d .git ]
     then
@@ -72,52 +118,6 @@ shDevenvSync() {(set -e
     git --no-pager diff
 )}
 
-shDevenvInit() {(set -e
-# this function will init devenv in current environment
-    local FILE
-    local MODE_FORCE
-    if [ "$1" = force ]
-    then
-        MODE_FORCE=1
-        shift
-    fi
-    cd "$HOME"
-    # init jslint_ci.sh
-    for FILE in .screenrc .vimrc jslint_ci.sh
-    do
-        if [ ! -f "$FILE" ] || [ "$MODE_FORCE" ]
-        then
-            curl -s -o "$FILE" \
-"https://raw.githubusercontent.com/kaizhu256/devenv2/alpha/$FILE"
-        fi
-    done
-    . ./jslint_ci.sh
-    # init devenv
-    if (git --version >/dev/null 2>&1)
-    then
-        if [ ! -d devenv2 ] || [ "$MODE_FORCE" ]
-        then
-            rm -rf devenv2
-            git clone https://github.com/kaizhu256/devenv2 \
-                --branch=alpha --single-branch
-            . devenv2/devenv.sh
-            shDevenvSync
-        fi
-    fi
-    # init .bashrc
-    if [ ! -f .bashrc ]
-    then
-        touch .bashrc
-    fi
-    for FILE in jslint_ci.sh devenv2/devenv.sh
-    do
-        if [ -f "$FILE" ] && ! (grep -q "^. $FILE$" .bashrc)
-        then
-            printf "\n. $FILE\n" >> .bashrc
-        fi
-    done
-)}
-
 shSshKeygen() {(set -e
 # this function will generate generic ssh key
     rm -f ~/.ssh/id_ed25519
@@ -162,14 +162,10 @@ shSshReverseTunnelClient2() {(set -e
     local PROXY_PORT="$(printf $PROXY | sed "s/.*://")"
     PROXY="$(printf $PROXY | sed "s/:.*//")"
     ssh \
-        -oStrictHostKeyChecking=no \
-        -oUserKnownHostsFile=/dev/null \
         -p "$PROXY_PORT" \
         -t \
         "$PROXY" \
         ssh \
-            -oStrictHostKeyChecking=no \
-            -oUserKnownHostsFile=/dev/null \
             -p "$((53735+"$PORT_OFFSET"))" \
             "$HOST" "$@"
 )}
@@ -189,14 +185,13 @@ shSshReverseTunnelServer() {(set -e
 "$REMOTE_PORT:$(printf "$SSH_REVERSE_REMOTE" | sed "s/random://")"
     fi
     # init dir .ssh/
-    for FILE in authorized_keys id_ed25519
+    for FILE in authorized_keys id_ed25519 known_hosts
     do
         shSecretFileGet ".ssh/$FILE" "$HOME/.ssh/$FILE"
     done
     # copy private-key to local
     scp \
         -P "$PROXY_PORT" \
-        -oStrictHostKeyChecking=no \
         "$HOME/.ssh/id_ed25519" "$PROXY_HOST:~/.ssh/" >/dev/null 2>&1
     ssh \
         -p "$PROXY_PORT" \
